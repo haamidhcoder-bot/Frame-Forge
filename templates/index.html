@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>FrameForge – Layout Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='frame.png') }}">
 </head>
 <body>
 
 <header class="topbar">
+  <button class="tbtn only-small" data-cmd="left" title="Layers">☰</button>
   <div class="brand"><span class="logo"><img src="{{ url_for('static', filename='frame.png') }}" alt=""  width="20" height="20"></span> FrameForge</div>
   <input id="projectName" class="pname" value="Untitled design" spellcheck="false" aria-label="Project name">
   <span id="status" class="status">Unsaved</span>
@@ -20,17 +24,28 @@
   <button class="tbtn txt" data-cmd="new">New</button>
   <button class="tbtn txt" data-cmd="open">Open</button>
   <button class="tbtn txt" data-cmd="import">Import</button>
-  <button class="tbtn txt" data-cmd="exportjson">Export JSON</button>
   <span class="sep"></span>
-  <button class="tbtn txt" data-cmd="preview">Preview</button>
-  <button class="tbtn txt" data-cmd="exporthtml">Export HTML</button>
+  <button class="tbtn txt" data-cmd="library" title="Blocks, pages, components, icons">Library</button>
+  <button class="tbtn txt" data-cmd="styles" title="Colour and text styles">Styles</button>
+  <button class="tbtn txt" data-cmd="viewmenu">View ▾</button>
+  <span class="sep"></span>
+  <button class="tbtn txt" data-cmd="present" title="Play the clickable prototype">▶ Present</button>
+  <button class="tbtn txt" data-cmd="exportmenu">Export ▾</button>
+  <button class="tbtn txt" data-cmd="publish" title="Save and open a public link">Publish</button>
   <button class="tbtn txt primary" data-cmd="save" title="Save (Ctrl+S)">Save</button>
+  <button class="tbtn" id="themeBtn" data-cmd="theme" title="Light / dark theme">☀</button>
+  <button class="tbtn" data-cmd="shortcuts" title="Keyboard shortcuts (?)">?</button>
+  <button class="tbtn only-small" data-cmd="right" title="Design panel">⚙</button>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
+  <input type="file" id="imageFile" accept="image/*" hidden>
 </header>
 
 <main class="workspace">
   <aside class="panel left">
+    <div class="ptitle">Pages <button class="plus" id="addPage" title="Add page">＋</button></div>
+    <div id="pages" class="pages"></div>
     <div class="ptitle">Layers</div>
+    <div class="lsearch"><input id="layerSearch" type="search" placeholder="Search layers…" spellcheck="false"></div>
     <div id="layers" class="layers"></div>
   </aside>
 
@@ -39,6 +54,9 @@
       <div id="world" class="world"></div>
       <div id="overlay" class="overlay"></div>
     </div>
+    <div id="rulerCorner" class="ruler-corner"></div>
+    <canvas id="rulerTop" class="ruler top" title="Drag down to add a guide"></canvas>
+    <canvas id="rulerLeft" class="ruler left" title="Drag right to add a guide"></canvas>
 
     <div class="toolbar" id="toolbar">
       <button data-tool="move" title="Move (V)" class="active">➤</button>
@@ -47,11 +65,19 @@
       <button data-tool="frame" title="Frame (F)">#</button>
       <button data-tool="rect" title="Rectangle (R)">▭</button>
       <button data-tool="ellipse" title="Ellipse (O)">◯</button>
+      <button data-tool="line" title="Line (L)">╱</button>
+      <button data-tool="polygon" title="Polygon / star (P)">⬠</button>
       <button data-tool="text" title="Text (T)">T</button>
       <button data-tool="button" title="Button (B)">▣</button>
       <button data-tool="image" title="Image (I)">▨</button>
+      <span class="tsep"></span>
+      <button data-tool="input" title="Input field (N)">⌨</button>
+      <button data-tool="checkbox" title="Checkbox (C)">☑</button>
+      <button data-tool="select" title="Dropdown (D)">▾</button>
+      <button data-cmd="icons" title="Icons">★</button>
     </div>
 
+    <canvas id="minimap" class="minimap" title="Minimap – click to navigate"></canvas>
     <div class="zoombar">
       <button data-zoom="out" title="Zoom out">−</button>
       <span id="zoomLabel">100%</span>
@@ -67,6 +93,36 @@
   </aside>
 </main>
 
+<!-- dropdown menus -->
+<div id="viewMenu" class="menu" hidden>
+  <label><input type="checkbox" data-ui="rulers"> Rulers &amp; guides <em>Shift+R</em></label>
+  <label><input type="checkbox" data-ui="grid"> Layout grid <em>Ctrl+'</em></label>
+  <label><input type="checkbox" data-ui="minimap"> Minimap</label>
+  <label><input type="checkbox" data-ui="snap"> Snapping</label>
+</div>
+<div id="exportMenu" class="menu" hidden>
+  <div class="mhead">Code</div>
+  <button data-exp="preview">Preview in new tab</button>
+  <button data-exp="html">HTML + CSS (single file)</button>
+  <button data-exp="html-css">HTML + CSS (.zip, separate stylesheet)</button>
+  <button data-exp="react">React component (.zip)</button>
+  <button data-exp="tailwind">Tailwind HTML</button>
+  <button data-exp="bootstrap">Bootstrap 5 (.zip)</button>
+  <div class="mhead">Options</div>
+  <label class="mrow">Layout
+    <select id="expMode"><option value="responsive">Responsive (flows)</option><option value="absolute">Pixel-perfect</option></select></label>
+  <label><input type="checkbox" id="expBp"> Treat frames as breakpoints</label>
+  <div class="mhead">Selected frame</div>
+  <button data-exp="png1">PNG</button>
+  <button data-exp="png2">PNG @2x</button>
+  <button data-exp="svg">SVG</button>
+  <button data-exp="pdf">PDF (print dialog)</button>
+  <div class="mhead">Project</div>
+  <button data-exp="json">Download project (.json)</button>
+</div>
+<div id="ctx" class="ctx" hidden></div>
+
+<!-- modals -->
 <div id="modal" class="modal" hidden>
   <div class="modal-box">
     <div class="modal-head"><strong>Open project</strong><button id="modalClose" class="tbtn">✕</button></div>
@@ -74,8 +130,54 @@
   </div>
 </div>
 
+<div id="libModal" class="modal" hidden>
+  <div class="modal-box lib">
+    <div class="modal-head"><strong>Library</strong>
+      <div id="libTabs" class="tabs"><button data-tab="blocks">Blocks</button><button data-tab="pages">Pages</button><button data-tab="components">Components</button><button data-tab="icons">Icons</button></div>
+      <button id="libClose" class="tbtn">✕</button></div>
+    <div id="libBody" class="libbody"></div>
+  </div>
+</div>
+
+<div id="stylesModal" class="modal" hidden>
+  <div class="modal-box lib">
+    <div class="modal-head"><strong>Styles</strong><button id="stylesClose" class="tbtn">✕</button></div>
+    <div id="stylesBody" class="libbody styles"></div>
+  </div>
+</div>
+
+<div id="shortcutsModal" class="modal" hidden>
+  <div class="modal-box lib">
+    <div class="modal-head"><strong>Keyboard shortcuts</strong><button id="shortcutsClose" class="tbtn">✕</button></div>
+    <div class="libbody keys">
+      <div><h4>Tools</h4><p><kbd>V</kbd> Move · <kbd>H</kbd> Hand · <kbd>F</kbd> Frame · <kbd>R</kbd> Rectangle · <kbd>O</kbd> Ellipse · <kbd>L</kbd> Line · <kbd>P</kbd> Polygon · <kbd>T</kbd> Text · <kbd>B</kbd> Button · <kbd>I</kbd> Image · <kbd>N</kbd> Input · <kbd>C</kbd> Checkbox · <kbd>D</kbd> Dropdown</p></div>
+      <div><h4>Edit</h4><p><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> Redo · <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>X</kbd>/<kbd>V</kbd> Copy/Cut/Paste · <kbd>Ctrl</kbd>+<kbd>D</kbd> Duplicate · <kbd>Del</kbd> Delete · <kbd>Ctrl</kbd>+<kbd>A</kbd> Select all · <kbd>Ctrl</kbd>+<kbd>S</kbd> Save</p></div>
+      <div><h4>Structure</h4><p><kbd>Ctrl</kbd>+<kbd>G</kbd> Group · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> Ungroup · <kbd>Shift</kbd>+<kbd>A</kbd> Add/remove auto layout · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> Create component · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> Detach instance · <kbd>]</kbd> <kbd>[</kbd> Forward / backward · <kbd>Ctrl</kbd>+<kbd>]</kbd> <kbd>[</kbd> Front / back · <kbd>Enter</kbd> Edit text or select child</p></div>
+      <div><h4>View</h4><p><kbd>Space</kbd>+drag Pan · <kbd>Ctrl</kbd>+scroll Zoom · <kbd>Shift</kbd>+<kbd>1</kbd> Fit all · <kbd>Shift</kbd>+<kbd>2</kbd> Fit selection · <kbd>Ctrl</kbd>+<kbd>0</kbd> 100% · <kbd>Shift</kbd>+<kbd>R</kbd> Rulers · <kbd>Ctrl</kbd>+<kbd>'</kbd> Grid · <kbd>Arrows</kbd> Nudge (<kbd>Shift</kbd> ×10) · <kbd>Shift</kbd>+drag Constrain · <kbd>Alt</kbd>+drag No snapping · <kbd>Esc</kbd> Cancel</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="present" class="present" hidden>
+  <div class="phead">
+    <button id="presentBack" class="tbtn">← Back</button>
+    <strong id="presentName"></strong>
+    <div class="spacer"></div>
+    <button id="presentHot" class="tbtn">Show clickable areas</button>
+    <button id="presentClose" class="tbtn">✕ Close (Esc)</button>
+  </div>
+  <div id="presentBox" class="pbox"><div id="presentStage" class="pstage"></div></div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script>window.ICONS = {{ icons|tojson }};</script>
+<script src="{{ url_for('static', filename='js/model.js') }}"></script>
+<script src="{{ url_for('static', filename='js/render.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ops.js') }}"></script>
+<script src="{{ url_for('static', filename='js/panels.js') }}"></script>
+<script src="{{ url_for('static', filename='js/interact.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib.js') }}"></script>
+<script src="{{ url_for('static', filename='js/io.js') }}"></script>
 </body>
 </html>

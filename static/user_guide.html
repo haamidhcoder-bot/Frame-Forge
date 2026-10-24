@@ -33,13 +33,14 @@
   .tblwrap { overflow-x:auto; }
   @media (max-width:600px) { nav ol { columns:1; } h1 { font-size:1.6rem; } }
   @media print { nav { display:none; } .wrap { padding:0; } }
+  .manual-top{display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <h1>FrameForge User Guide</h1>
-  <p>A Figma-style website layout designer: HTML/CSS/JS frontend, Python (Flask + SQLite) backend.</p>
+  <p>A Figma-style website layout designer: HTML/CSS/JS frontend, Python (Flask + SQLite) backend. Version 2.</p>
 </header>
 
 <nav>
@@ -47,110 +48,188 @@
   <ol>
     <li><a href="#start">Getting started</a></li>
     <li><a href="#canvas">Navigating the canvas</a></li>
-    <li><a href="#draw">Drawing</a></li>
-    <li><a href="#select">Selecting and moving</a></li>
-    <li><a href="#layers">Layers panel</a></li>
-    <li><a href="#props">Properties panel</a></li>
+    <li><a href="#draw">Drawing and elements</a></li>
+    <li><a href="#select">Selecting, grouping and aligning</a></li>
+    <li><a href="#layers">Pages and layers</a></li>
+    <li><a href="#props">Properties: fills, strokes, effects, text</a></li>
+    <li><a href="#auto">Auto layout</a></li>
+    <li><a href="#images">Images and icons</a></li>
+    <li><a href="#comp">Components and instances</a></li>
+    <li><a href="#styles">Colour and text styles</a></li>
+    <li><a href="#lib">Library: blocks and page templates</a></li>
+    <li><a href="#guides">Rulers, guides, grid and minimap</a></li>
+    <li><a href="#proto">Prototype and Present mode</a></li>
     <li><a href="#save">Saving and loading</a></li>
-    <li><a href="#export">Exporting to HTML/CSS</a></li>
+    <li><a href="#export">Exporting</a></li>
+    <li><a href="#ui">Theme, context menu and touch</a></li>
     <li><a href="#keys">Shortcuts</a></li>
     <li><a href="#trouble">Troubleshooting</a></li>
   </ol>
 </nav>
 
 <h2 id="start"><span class="n">1</span>Getting started</h2>
-<p>The first launch loads a demo landing page with desktop and mobile frames. Select its layers to see how it is built. To start empty, click <strong>New</strong>.</p>
+<p>The editor has a top bar (file, edit, view, export, publish), a left panel (Pages and Layers), the canvas in the middle with a toolbar, and a Properties panel on the right. A demo document with a desktop and a mobile landing page is loaded the first time.</p>
 <ul>
-  <li><strong>Top bar:</strong> project name, undo/redo, New, Open, Import, Export JSON, Preview, Export HTML, Save.</li>
-  <li><strong>Left panel:</strong> the Layers list.</li>
-  <li><strong>Centre:</strong> the canvas, with the tool palette at the bottom and zoom controls at the bottom right.</li>
-  <li><strong>Right panel:</strong> Design properties for the selected layer.</li>
+  <li>Work is organised into <strong>pages</strong>; each page holds any number of <strong>frames</strong> (artboards).</li>
+  <li>Press <kbd>Ctrl</kbd>+<kbd>S</kbd> or <strong>Save</strong> to store the design on the server; unsaved changes are lost if you close the tab.</li>
+  <li>Press <kbd>?</kbd> in the top bar at any time for the shortcut cheat-sheet.</li>
 </ul>
 
 <h2 id="canvas"><span class="n">2</span>Navigating the canvas</h2>
+<ul>
+  <li><strong>Pan:</strong> hold <kbd>Space</kbd> and drag, use the Hand tool (<kbd>H</kbd>), or the middle mouse button.</li>
+  <li><strong>Zoom:</strong> <kbd>Ctrl</kbd>+scroll, pinch on a touch screen, or the zoom bar. <kbd>Shift</kbd>+<kbd>1</kbd> fits everything, <kbd>Shift</kbd>+<kbd>2</kbd> fits the selection, <kbd>Ctrl</kbd>+<kbd>0</kbd> returns to 100%.</li>
+  <li><strong>Minimap:</strong> the small overview in the corner; click it to jump to that area.</li>
+</ul>
+
+<h2 id="draw"><span class="n">3</span>Drawing and elements</h2>
+<p>Pick a tool from the toolbar (or press its key) and drag on the canvas. Click without dragging to drop a default-sized element.</p>
 <div class="tblwrap"><table>
-  <tr><th>Action</th><th>How</th></tr>
-  <tr><td>Pan</td><td>Hold <kbd>Space</kbd> and drag, use the Hand tool (<kbd>H</kbd>), or scroll</td></tr>
-  <tr><td>Zoom</td><td><kbd>Ctrl/Cmd</kbd> + scroll, or the <strong>+ / − / Fit</strong> buttons</td></tr>
-  <tr><td>Fit everything</td><td><strong>Fit</strong> button or <kbd>Shift</kbd>+<kbd>1</kbd></td></tr>
-  <tr><td>Reset to 100%</td><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td></tr>
+<tr><th>Element</th><th>Key</th><th>Notes</th></tr>
+<tr><td>Frame</td><td><kbd>F</kbd></td><td>Artboard or container. Top-level frames act as pages of your site; they can also be breakpoints (see Export).</td></tr>
+<tr><td>Rectangle / Ellipse</td><td><kbd>R</kbd> / <kbd>O</kbd></td><td>Basic shapes with fills, strokes, radius and effects.</td></tr>
+<tr><td>Line</td><td><kbd>L</kbd></td><td>Straight line; set its thickness with stroke width.</td></tr>
+<tr><td>Polygon / Star</td><td><kbd>P</kbd></td><td>Choose number of sides and star mode in Properties.</td></tr>
+<tr><td>Text</td><td><kbd>T</kbd></td><td>Double-click (or <kbd>Enter</kbd>) to edit.</td></tr>
+<tr><td>Button</td><td><kbd>B</kbd></td><td>Exports as a real <code>&lt;button&gt;</code>; can link to a frame or URL.</td></tr>
+<tr><td>Image</td><td><kbd>I</kbd></td><td>See Images and icons.</td></tr>
+<tr><td>Input, Checkbox, Dropdown</td><td><kbd>N</kbd> <kbd>C</kbd> <kbd>D</kbd></td><td>Form controls exported as real form elements.</td></tr>
+<tr><td>Icon</td><td>Library</td><td>Built-in icon set.</td></tr>
 </table></div>
 
-<h2 id="draw"><span class="n">3</span>Drawing</h2>
-<p>Pick a tool, then drag on the canvas. A single click gives you the default size.</p>
+<h2 id="select"><span class="n">4</span>Selecting, grouping and aligning</h2>
+<ul>
+  <li>Click to select; <kbd>Shift</kbd>+click to add; drag on empty canvas for a marquee. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects all on the page.</li>
+  <li>Drag to move, drag handles to resize. <kbd>Shift</kbd> constrains, <kbd>Alt</kbd> turns snapping off. Arrow keys nudge (<kbd>Shift</kbd> = 10 px).</li>
+  <li><strong>Group</strong> <kbd>Ctrl</kbd>+<kbd>G</kbd>, <strong>Ungroup</strong> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd>.</li>
+  <li><strong>Align</strong> left/centre/right/top/middle/bottom and <strong>distribute</strong> horizontally or vertically from the Properties panel when two or more layers (three for distribute) are selected. Alignment is relative to the selection, or to the parent frame for a single layer.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd>, <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate, <kbd>Del</kbd> delete, <kbd>[</kbd> <kbd>]</kbd> change stacking order.</li>
+  <li>Undo and redo are unlimited within the session: <kbd>Ctrl</kbd>+<kbd>Z</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>.</li>
+</ul>
+
+<h2 id="layers"><span class="n">5</span>Pages and layers</h2>
+<ul>
+  <li><strong>Pages</strong> (top of the left panel): add, rename, duplicate or delete pages. Each page has its own set of frames.</li>
+  <li><strong>Layers:</strong> a tree of everything on the page. Click to select, drag to reorder or re-parent, use the eye and lock icons, double-click to rename.</li>
+  <li><strong>Search:</strong> type in the search box above the tree to filter layers by name.</li>
+</ul>
+
+<h2 id="props"><span class="n">6</span>Properties: fills, strokes, effects, text</h2>
+<ul>
+  <li><strong>Position and size:</strong> X, Y, W, H, rotation and corner radius.</li>
+  <li><strong>Fills:</strong> any number of fills per layer. Each is a solid colour, a linear gradient (with angle) or a radial gradient, with its own opacity. Fills stack top-down.</li>
+  <li><strong>Strokes:</strong> any number of strokes, each with its own colour and width. Extra strokes render as concentric rings.</li>
+  <li><strong>Effects:</strong> drop shadow, inner shadow, layer blur and background blur, each with its own controls.</li>
+  <li><strong>Text:</strong> font family (Google Fonts), weight, size, line height, letter spacing, alignment, italic, underline and strikethrough.</li>
+  <li><strong>Opacity</strong> and <strong>visibility</strong> apply to the whole layer.</li>
+</ul>
+<div class="tip">Colours can be bound to a colour style; text can be bound to a text style. See Colour and text styles.</div>
+
+<h2 id="auto"><span class="n">7</span>Auto layout</h2>
+<p>Select a frame (or a group) and press <kbd>Shift</kbd>+<kbd>A</kbd> to turn on auto layout. The frame then arranges its children like CSS flexbox or grid, and the export uses real <code>display:flex</code> / <code>display:grid</code>.</p>
+<ul>
+  <li><strong>Direction:</strong> row, column or grid (with a column count).</li>
+  <li><strong>Gap, padding, wrap, alignment and justify</strong> control spacing and distribution.</li>
+  <li><strong>Child sizing:</strong> each child can be <em>Fixed</em>, <em>Fill</em> (take the remaining space) or <em>Hug</em> (shrink to content).</li>
+  <li>Drag a child inside an auto-layout frame to reorder it; a drop indicator shows where it will land. Hold <kbd>Ctrl</kbd> while hovering a sibling container to drop <em>into</em> it instead.</li>
+  <li><kbd>Shift</kbd>+<kbd>A</kbd> again removes auto layout and children keep their current positions.</li>
+</ul>
+
+<h2 id="images"><span class="n">8</span>Images and icons</h2>
+<ul>
+  <li><strong>Upload:</strong> choose the Image tool and click, then pick a file; or drag an image file onto the canvas; or paste an image from the clipboard. Uploaded images are embedded in the design.</li>
+  <li><strong>Fit mode:</strong> cover, contain or fill in Properties.</li>
+  <li><strong>Icons:</strong> insert from the Library; colour and size follow the stroke colour and the layer size.</li>
+</ul>
+
+<h2 id="comp"><span class="n">9</span>Components and instances</h2>
+<ul>
+  <li>Select a layer and press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> to turn it into a <strong>component</strong> (master).</li>
+  <li>Insert <strong>instances</strong> from the Library (right-click &rsaquo; Go to main component jumps to the master). Edit the master and every instance updates.</li>
+  <li>Inside an instance you can <strong>override</strong> text, fills and visibility without changing the master.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> detaches an instance into ordinary layers.</li>
+  <li>Component masters are not included in exports.</li>
+</ul>
+
+<h2 id="styles"><span class="n">10</span>Colour and text styles</h2>
+<p>Open <strong>Styles</strong> in the top bar.</p>
+<ul>
+  <li><strong>Colour styles:</strong> name a colour once and bind fills and strokes to it. Editing the style recolours everything that uses it, in the editor and in exports.</li>
+  <li><strong>Text styles:</strong> save font, size, weight, line height and letter spacing as a named style; apply it from a text layer's Properties.</li>
+</ul>
+
+<h2 id="lib"><span class="n">11</span>Library: blocks and page templates</h2>
+<p>Open <strong>Library</strong> in the top bar.</p>
+<ul>
+  <li><strong>Blocks:</strong> ready-made sections such as navbar, hero, feature grid, pricing, testimonial, footer and form controls. Click to insert at the centre of the view, or into the selected frame.</li>
+  <li><strong>Page templates:</strong> full landing, mobile and other pages that you can add to the current page.</li>
+  <li><strong>Components:</strong> all components in the document, ready to insert as instances.</li>
+</ul>
+
+<h2 id="guides"><span class="n">12</span>Rulers, guides, grid and minimap</h2>
+<ul>
+  <li><strong>View &#9662;</strong> toggles rulers (<kbd>Shift</kbd>+<kbd>R</kbd>), the pixel grid (<kbd>Ctrl</kbd>+<kbd>'</kbd>), snapping and the minimap.</li>
+  <li>Drag from a ruler to create a <strong>guide</strong>; drag it back onto the ruler to remove it. Elements snap to guides.</li>
+</ul>
+
+<h2 id="proto"><span class="n">13</span>Prototype and Present mode</h2>
+<ul>
+  <li>Select a button or any layer and, under <strong>Link</strong> in Properties, choose a target <strong>frame</strong> or enter a <strong>URL</strong>.</li>
+  <li>Press <strong>&#9654; Present</strong> to view the design full screen. Clicking linked layers navigates between frames. <kbd>Esc</kbd> exits; a back control returns to the previous frame.</li>
+  <li>The same links work in the exported HTML.</li>
+</ul>
+
+<h2 id="save"><span class="n">14</span>Saving and loading</h2>
+<ul>
+  <li><strong>Save</strong> stores the design in the server database; <strong>Open</strong> lists saved designs to load or delete. The last design you worked on reopens automatically.</li>
+  <li><strong>New</strong> starts a blank document. <strong>Import</strong> loads a <code>.json</code> design file; Export &rsaquo; JSON downloads one.</li>
+  <li>Pages, colour styles, text styles and components are all saved with the design.</li>
+</ul>
+
+<h2 id="export"><span class="n">15</span>Exporting</h2>
+<p>Use <strong>Export &#9662;</strong>. The Options section of the menu sets the layout:</p>
+<ul>
+  <li><strong>Responsive (flows):</strong> auto-layout frames become flex/grid, widths become fluid and the page is centred. With <strong>Treat frames as breakpoints</strong> ticked, frames of different widths act as desktop / tablet / mobile versions of the same page and are switched by media queries (up to 767 px and 1023 px).</li>
+  <li><strong>Pixel-perfect:</strong> pixel-exact positioning, matching the canvas.</li>
+</ul>
 <div class="tblwrap"><table>
-  <tr><th>Tool</th><th>Key</th><th>Notes</th></tr>
-  <tr><td>Move</td><td><kbd>V</kbd></td><td>Select and drag</td></tr>
-  <tr><td>Hand</td><td><kbd>H</kbd></td><td>Pan</td></tr>
-  <tr><td>Frame</td><td><kbd>F</kbd></td><td>A page or screen. Other elements nest inside it</td></tr>
-  <tr><td>Rectangle</td><td><kbd>R</kbd></td><td>Cards, navbars, backgrounds</td></tr>
-  <tr><td>Ellipse</td><td><kbd>O</kbd></td><td>Circles, avatars</td></tr>
-  <tr><td>Text</td><td><kbd>T</kbd></td><td>Starts editing as soon as you draw it</td></tr>
-  <tr><td>Button</td><td><kbd>B</kbd></td><td>Styled button with an editable label</td></tr>
-  <tr><td>Image</td><td><kbd>I</kbd></td><td>Placeholder. Paste an image URL in the properties panel</td></tr>
+<tr><th>Format</th><th>Result</th></tr>
+<tr><td>Preview</td><td>Opens the export in a new tab.</td></tr>
+<tr><td>HTML + CSS (single file)</td><td>One <code>.html</code> with embedded CSS. Frame links become clickable navigation between frames.</td></tr>
+<tr><td>HTML + CSS (.zip)</td><td>Zip with <code>index.html</code> and <code>style.css</code>.</td></tr>
+<tr><td>React</td><td>Zip with a <code>.jsx</code> component and its CSS.</td></tr>
+<tr><td>Tailwind</td><td>HTML using Tailwind utility classes (loaded from the Tailwind CDN).</td></tr>
+<tr><td>Bootstrap</td><td>Zip with Bootstrap utility classes (CDN) and a small stylesheet.</td></tr>
+<tr><td>PNG, PNG @2x, SVG</td><td>Image of the selected frame.</td></tr>
+<tr><td>PDF</td><td>Opens the print dialog for the frame; choose Save as PDF.</td></tr>
+<tr><td>Project (.json)</td><td>The editable FrameForge document.</td></tr>
 </table></div>
-<div class="tip"><strong>Tip:</strong> Draw a Frame first (use a preset such as Desktop 1440×900 or Mobile 375×812). Anything you draw or drop inside it becomes its child, and it moves and exports with that frame.</div>
+<p><strong>Publish</strong> saves the design and opens a public read-only page at <code>/p/&lt;id&gt;</code> on the same server, using responsive mode with breakpoints.</p>
 
-<h2 id="select"><span class="n">4</span>Selecting and moving</h2>
+<h2 id="ui"><span class="n">16</span>Theme, context menu and touch</h2>
 <ul>
-  <li>Click a layer to select it. <kbd>Shift</kbd>+click adds or removes layers from the selection.</li>
-  <li>Drag to move. Red guides appear when edges or centres line up with neighbours. Hold <kbd>Alt</kbd> to turn snapping off. Hold <kbd>Shift</kbd> to lock movement to one axis.</li>
-  <li>Drag the 8 handles to resize. <kbd>Shift</kbd> with a corner handle keeps the proportions.</li>
-  <li>Arrow keys nudge by 1px. <kbd>Shift</kbd>+arrow nudges by 10px.</li>
-  <li>Drag a layer out of one frame and into another to re-parent it.</li>
-  <li>Double-click text or a button (or press <kbd>Enter</kbd>) to edit it. Press <kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to finish.</li>
+  <li><strong>Theme:</strong> the sun/moon button switches between dark and light editor themes; the choice is remembered.</li>
+  <li><strong>Right-click menu:</strong> copy, paste, duplicate, group, auto layout, component actions, order, lock, hide and delete.</li>
+  <li><strong>Touch and tablets:</strong> one finger draws or moves, two fingers pan and pinch-zoom. On narrow screens the side panels become drawers opened with the &#9776; button.</li>
 </ul>
 
-<h2 id="layers"><span class="n">5</span>Layers panel</h2>
-<ul>
-  <li>Double-click a name to rename it.</li>
-  <li>The 🔒 and 👁 icons lock and hide a layer. Locked layers can't be selected on the canvas. Hidden layers are left out of the export.</li>
-  <li>Children are indented under their frame. Layers higher in the list sit on top.</li>
-</ul>
-
-<h2 id="props"><span class="n">6</span>Properties panel</h2>
-<ul>
-  <li><strong>Position:</strong> X, Y, W, H are relative to the parent frame. Children also get align buttons (left, centre, right, top, middle, bottom).</li>
-  <li><strong>Text and Button:</strong> content, size, weight, font (Inter, Georgia, Mono), alignment, colour.</li>
-  <li><strong>Appearance:</strong> fill (or No fill), corner radius, opacity, drop shadow. Frames also have <em>Clip content</em>.</li>
-  <li><strong>Stroke:</strong> colour and width.</li>
-  <li><strong>Order buttons:</strong> bring to front, forward, backward, send to back. Shortcuts: <kbd>]</kbd>, <kbd>[</kbd>, <kbd>Ctrl</kbd>+<kbd>]</kbd>, <kbd>Ctrl</kbd>+<kbd>[</kbd>.</li>
-</ul>
-
-<h2 id="save"><span class="n">7</span>Saving and loading</h2>
-<ul>
-  <li><strong>Save</strong> (or <kbd>Ctrl</kbd>+<kbd>S</kbd>) stores the project in the local database. After the first save, changes auto-save about 1.5 seconds after you stop editing. The status label next to the name shows <em>Unsaved</em>, <em>Saving…</em> or <em>Saved</em>.</li>
-  <li><strong>Open</strong> lists your projects, newest first. Click one to load it. The 🗑 icon deletes it.</li>
-  <li>The app reopens your last project on reload.</li>
-  <li><strong>Export JSON</strong> and <strong>Import</strong> move designs between machines as <code>.json</code> files.</li>
-</ul>
-
-<h2 id="export"><span class="n">8</span>Exporting to HTML/CSS</h2>
-<ul>
-  <li><strong>Preview</strong> opens the generated page in a new tab.</li>
-  <li><strong>Export HTML</strong> downloads a standalone <code>.html</code> file with inline CSS and no dependencies.</li>
-  <li>Each top-level frame becomes a <code>&lt;section&gt;</code>, text becomes <code>&lt;div&gt;</code>, buttons become <code>&lt;button&gt;</code>, and images become <code>&lt;img&gt;</code>.</li>
-  <li>The export uses <strong>absolute positioning</strong>, so it looks exactly like the canvas but won't reflow on other screen sizes. Make one frame per breakpoint (the demo has desktop and mobile).</li>
-  <li>Images need a public URL (<code>https://…</code>) to appear in the export.</li>
-</ul>
-
-<h2 id="keys"><span class="n">9</span>Shortcuts</h2>
+<h2 id="keys"><span class="n">17</span>Shortcuts</h2>
 <div class="tblwrap"><table>
-  <tr><th>Shortcut</th><th>Action</th></tr>
-  <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> (or <kbd>Ctrl</kbd>+<kbd>Y</kbd>)</td><td>Undo / redo</td></tr>
-  <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>V</kbd> / <kbd>D</kbd></td><td>Copy / paste / duplicate</td></tr>
-  <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select all top-level layers</td></tr>
-  <tr><td><kbd>Delete</kbd> or <kbd>Backspace</kbd></td><td>Delete</td></tr>
-  <tr><td><kbd>Esc</kbd></td><td>Back to Move tool, or deselect</td></tr>
-  <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save</td></tr>
+<tr><th>Area</th><th>Keys</th></tr>
+<tr><td>Tools</td><td><kbd>V</kbd> Move, <kbd>H</kbd> Hand, <kbd>F</kbd> Frame, <kbd>R</kbd> Rectangle, <kbd>O</kbd> Ellipse, <kbd>L</kbd> Line, <kbd>P</kbd> Polygon, <kbd>T</kbd> Text, <kbd>B</kbd> Button, <kbd>I</kbd> Image, <kbd>N</kbd> Input, <kbd>C</kbd> Checkbox, <kbd>D</kbd> Dropdown</td></tr>
+<tr><td>Edit</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo, <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>X</kbd>/<kbd>V</kbd>, <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate, <kbd>Del</kbd> delete, <kbd>Ctrl</kbd>+<kbd>A</kbd> select all, <kbd>Ctrl</kbd>+<kbd>S</kbd> save</td></tr>
+<tr><td>Structure</td><td><kbd>Ctrl</kbd>+<kbd>G</kbd> group, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> ungroup, <kbd>Shift</kbd>+<kbd>A</kbd> auto layout, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> create component, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> detach instance, <kbd>[</kbd> <kbd>]</kbd> order, <kbd>Enter</kbd> edit text / select child</td></tr>
+<tr><td>View</td><td><kbd>Space</kbd>+drag pan, <kbd>Ctrl</kbd>+scroll zoom, <kbd>Shift</kbd>+<kbd>1</kbd> fit all, <kbd>Shift</kbd>+<kbd>2</kbd> fit selection, <kbd>Ctrl</kbd>+<kbd>0</kbd> 100%, <kbd>Shift</kbd>+<kbd>R</kbd> rulers, <kbd>Ctrl</kbd>+<kbd>'</kbd> grid, arrows nudge, <kbd>Esc</kbd> cancel</td></tr>
 </table></div>
 
-<h2 id="trouble"><span class="n">10</span>Troubleshooting</h2>
+<h2 id="trouble"><span class="n">18</span>Troubleshooting</h2>
 <ul>
-  <li><strong>Can't select something:</strong> it may be locked. Check the 🔒 in Layers.</li>
-  <li><strong>Layer vanished:</strong> it may be hidden. Check the 👁 icon.</li>
-  <li><strong>Image is blank:</strong> paste a full <code>https://</code> image URL in the properties panel.</li>
-  <li><strong>Data location:</strong> projects live in <code>designs.db</code> next to <code>app.py</code>. Delete that file to reset everything.</li>
+  <li><strong>Fonts look different in PNG/SVG:</strong> those exports embed Google Fonts, so the browser must be able to reach Google Fonts when you export.</li>
+  <li><strong>Remote images missing from PNG/SVG:</strong> images from other websites need to allow cross-origin use; uploaded images always work.</li>
+  <li><strong>Published link does not open for others:</strong> <code>/p/&lt;id&gt;</code> lives on the server you are using, so it is only reachable by people who can reach that server.</li>
+  <li><strong>Tailwind / Bootstrap export is unstyled offline:</strong> those formats load their framework from a CDN and need internet access.</li>
+  <li><strong>Strokes on polygons:</strong> polygons and stars are clipped shapes, so they show fills but not outlines.</li>
+  <li><strong>A change disappeared:</strong> use <kbd>Ctrl</kbd>+<kbd>Z</kbd>; unsaved work is lost on reload, so save regularly.</li>
 </ul>
 </div>
 </body>

@@ -1,9 +1,8 @@
 """FrameForge - a Figma-style website layout editor.
 
-Backend: Flask + SQLite (stdlib). Stores designs as JSON and exports them
-to clean standalone HTML/CSS.
+Backend: Flask + SQLite (stdlib). Stores designs as JSON and exports them to
+HTML/CSS, React, Tailwind and Bootstrap (see exporter.py).
 """
-import html
 import json
 import os
 import re
@@ -12,11 +11,14 @@ import time
 
 from flask import Flask, Response, g, jsonify, render_template, request
 
+from exporter import FORMATS, export_project
+from icons import ICONS
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "designs.db")
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024  # embedded images can be large
 
 
 # --------------------------------------------------------------------------
@@ -52,18 +54,21 @@ def init_db():
 # Validation helpers
 # --------------------------------------------------------------------------
 def clean_payload(payload):
-    """Validate the {name, data:{els:[...]}} body sent by the editor."""
+    """Validate the {name, data:{els:[...], pages, tokens, textStyles}} body sent by the editor."""
     if not isinstance(payload, dict):
         raise ValueError("Body must be a JSON object")
     name = str(payload.get("name") or "Untitled design").strip()[:120] or "Untitled design"
     data = payload.get("data")
     if not isinstance(data, dict) or not isinstance(data.get("els"), list):
         raise ValueError("data.els must be a list")
-    if len(data["els"]) > 5000:
-        raise ValueError("Too many elements (max 5000)")
+    if len(data["els"]) > 8000:
+        raise ValueError("Too many elements (max 8000)")
     for e in data["els"]:
         if not isinstance(e, dict) or "id" not in e or "type" not in e:
             raise ValueError("Every element needs an id and a type")
+    for key, kind in (("pages", list), ("tokens", dict), ("textStyles", dict)):
+        if key in data and not isinstance(data[key], kind):
+            raise ValueError(f"data.{key} must be a {kind.__name__}")
     return name, data
 
 
@@ -71,12 +76,35 @@ def bad_request(msg):
     return jsonify(error=msg), 400
 
 
+def export_opts(src):
+    """Export options from a JSON body or query string."""
+    mode = src.get("mode")
+    return {
+        "mode": "responsive" if mode == "responsive" else "absolute",
+        "breakpoints": str(src.get("breakpoints", "")).lower() in ("1", "true", "yes"),
+        "page": src.get("page") or None,
+        "start": src.get("start") or None,
+        "frame": src.get("frame") or None,
+    }
+
+
 # --------------------------------------------------------------------------
 # Pages
 # --------------------------------------------------------------------------
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", icons=ICONS)
+
+
+@app.get("/p/<int:pid>")
+def published(pid):
+    """Public, read-only page for a saved project (the 'Publish' button links here)."""
+    row = get_db().execute("SELECT * FROM projects WHERE id = ?", (pid,)).fetchone()
+    if row is None:
+        return "Project not found", 404
+    opts = export_opts({"mode": "responsive", "breakpoints": "1", "page": request.args.get("page")})
+    body, mime, _ = export_project(row["name"], json.loads(row["data"]), "html", opts)
+    return Response(body, mimetype=mime)
 
 
 # --------------------------------------------------------------------------
@@ -142,148 +170,27 @@ def delete_project(pid):
 
 
 # --------------------------------------------------------------------------
-# HTML / CSS export
+# Export
 # --------------------------------------------------------------------------
-COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|transparent|rgba?\(\s*[\d.\s,%]+\))$")
-FONTS = {
-    "Inter": "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif",
-    "Georgia": "Georgia, 'Times New Roman', serif",
-    "Mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-}
-ALIGN_FLEX = {"left": "flex-start", "center": "center", "right": "flex-end"}
-
-
-def num(value, default=0.0):
-    try:
-        n = float(value)
-    except (TypeError, ValueError):
-        return default
-    return n if n == n and abs(n) != float("inf") else default
-
-
-def px(value):
-    n = num(value)
-    return f"{int(n)}px" if n == int(n) else f"{round(n, 2)}px"
-
-
-def color(value, default="transparent"):
-    if isinstance(value, str) and COLOR_RE.match(value.strip()):
-        return value.strip()
-    return default
-
-
-def safe_url(value):
-    if not isinstance(value, str):
-        return ""
-    value = value.strip()
-    if re.match(r"^(https?://|data:image/(png|jpe?g|gif|webp|svg\+xml);)", value, re.I):
-        return value
-    return ""
-
-
-def element_css(e, is_root):
-    t = e.get("type")
-    r = []
-    if is_root:
-        r.append("position:relative;margin:32px auto")
-    else:
-        r.append(f"position:absolute;left:{px(e.get('x'))};top:{px(e.get('y'))}")
-    r.append(f"width:{px(e.get('w'))};height:{px(e.get('h'))};box-sizing:border-box")
-
-    if t != "text":
-        r.append(f"background-color:{color(e.get('fill'), '#d9d9d9' if t != 'frame' else '#ffffff')}")
-    sw = num(e.get("strokeW"))
-    if sw > 0:
-        r.append(f"border:{px(sw)} solid {color(e.get('stroke'), '#000000')}")
-    if t == "ellipse":
-        r.append("border-radius:50%")
-    elif num(e.get("radius")) > 0:
-        r.append(f"border-radius:{px(e.get('radius'))}")
-    opacity = num(e.get("opacity"), 1)
-    if opacity < 1:
-        r.append(f"opacity:{round(max(0.0, opacity), 2)}")
-    if e.get("shadow"):
-        r.append("box-shadow:0 8px 24px rgba(0,0,0,.25)")
-    if t == "frame" and e.get("clip"):
-        r.append("overflow:hidden")
-
-    if t in ("text", "button"):
-        r.append(f"font-family:{FONTS.get(e.get('font'), FONTS['Inter'])}")
-        r.append(f"font-size:{px(num(e.get('fontSize'), 16))}")
-        r.append(f"font-weight:{int(num(e.get('fontWeight'), 400))}")
-        r.append(f"color:{color(e.get('color'), '#111111')}")
-        r.append("line-height:1.3;white-space:pre-wrap;word-wrap:break-word")
-    if t == "text":
-        align = e.get("align") if e.get("align") in ALIGN_FLEX else "left"
-        r.append(f"text-align:{align}")
-    if t == "button":
-        align = e.get("align") if e.get("align") in ALIGN_FLEX else "center"
-        r.append(f"display:flex;align-items:center;justify-content:{ALIGN_FLEX[align]};"
-                 "cursor:pointer;padding:0 12px")
-        if sw <= 0:
-            r.append("border:none")
-    return ";".join(r)
-
-
-def render_element(e, children_of, is_root=False):
-    if e.get("visible") is False:
-        return ""
-    t = e.get("type")
-    cid = "n" + re.sub(r"[^a-zA-Z0-9_-]", "", str(e.get("id")))
-    css = html.escape(element_css(e, is_root), quote=True)
-    name = html.escape(str(e.get("name", "")), quote=True)
-    text = html.escape(str(e.get("text", "")))
-
-    if t == "text":
-        return f'<div id="{cid}" data-name="{name}" style="{css}">{text}</div>'
-    if t == "button":
-        return f'<button id="{cid}" type="button" data-name="{name}" style="{css}">{text}</button>'
-    if t == "image":
-        url = safe_url(e.get("url"))
-        if url:
-            return (f'<img id="{cid}" src="{html.escape(url, quote=True)}" alt="{name}" '
-                    f'style="{css};object-fit:cover;display:block">')
-        return f'<div id="{cid}" data-name="{name}" style="{css}"></div>'
-    inner = "".join(render_element(c, children_of) for c in children_of.get(e.get("id"), []))
-    tag = "section" if t == "frame" else "div"
-    return f'<{tag} id="{cid}" data-name="{name}" style="{css}">{inner}</{tag}>'
-
-
-def export_html(name, els):
-    children_of = {}
-    for e in els:
-        children_of.setdefault(e.get("parent"), []).append(e)
-    ids = {e.get("id") for e in els}
-    # roots = no parent, or a parent that doesn't exist
-    roots = [e for e in els if not e.get("parent") or e.get("parent") not in ids]
-    body = "\n".join(render_element(e, children_of, is_root=True) for e in roots)
-    title = html.escape(name)
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<style>
-  *, *::before, *::after {{ box-sizing: border-box; }}
-  body {{ margin: 0; background: #e5e7eb; padding: 16px; overflow-x: auto; }}
-  button {{ font: inherit; }}
-</style>
-</head>
-<body>
-{body}
-</body>
-</html>
-"""
+def send_export(name, data, fmt_name, opts):
+    if fmt_name not in FORMATS:
+        return bad_request("Unknown export format")
+    body, mime, filename = export_project(name, data, fmt_name, opts)
+    return Response(body, mimetype=mime, headers={
+        "Content-Disposition": f'inline; filename="{filename}"',
+        "X-Export-Filename": filename,
+        "Access-Control-Expose-Headers": "X-Export-Filename",
+    })
 
 
 @app.post("/api/export")
 def export_route():
+    payload = request.get_json(silent=True)
     try:
-        name, data = clean_payload(request.get_json(silent=True))
+        name, data = clean_payload(payload)
     except ValueError as exc:
         return bad_request(str(exc))
-    return Response(export_html(name, data["els"]), mimetype="text/html")
+    return send_export(name, data, payload.get("format", "html"), export_opts(payload))
 
 
 @app.get("/api/projects/<int:pid>/export.html")
@@ -291,9 +198,9 @@ def export_saved(pid):
     row = get_db().execute("SELECT * FROM projects WHERE id = ?", (pid,)).fetchone()
     if row is None:
         return jsonify(error="Project not found"), 404
-    page = export_html(row["name"], json.loads(row["data"])["els"])
+    body, mime, _ = export_project(row["name"], json.loads(row["data"]), "html", export_opts(request.args))
     safe = re.sub(r"[^a-zA-Z0-9_-]+", "-", row["name"]).strip("-") or "design"
-    return Response(page, mimetype="text/html",
+    return Response(body, mimetype=mime,
                     headers={"Content-Disposition": f'attachment; filename="{safe}.html"'})
 
 
