@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FrameForge User Guide</title>
+<style>
+  :root { --bg:#ffffff; --text:#1f2430; --muted:#5b6475; --accent:#0d7fd6; --line:#e3e7ee; --soft:#f4f6fa; --code:#eef1f6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17191f; --text:#e6e8ee; --muted:#9aa3b5; --accent:#4db3ff; --line:#2c303a; --soft:#1f222a; --code:#262a34; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 system-ui,-apple-system,'Segoe UI',Inter,sans-serif; }
+  .wrap { max-width:860px; margin:0 auto; padding:40px 16px 80px; }
+  header { border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:24px; }
+  h1 { margin:0 0 6px; font-size:2rem; }
+  header p { margin:0; color:var(--muted); }
+  nav { background:var(--soft); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:32px; }
+  nav strong { display:block; margin-bottom:6px; }
+  nav ol { margin:0; padding-left:20px; columns:2; }
+  nav a { color:var(--accent); text-decoration:none; }
+  nav a:hover { text-decoration:underline; }
+  h2 { margin:40px 0 10px; font-size:1.35rem; padding-top:8px; border-top:1px solid var(--line); }
+  h2 .n { color:var(--accent); margin-right:6px; }
+  ul { padding-left:22px; } li { margin:4px 0; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:.95rem; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:var(--soft); font-weight:600; }
+  kbd, code { background:var(--code); border:1px solid var(--line); border-radius:4px; padding:1px 6px; font:.88em ui-monospace,Menlo,Consolas,monospace; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:8px; padding:12px 14px; overflow-x:auto; }
+  pre code { border:none; padding:0; background:none; }
+  .tip { background:var(--soft); border-left:4px solid var(--accent); border-radius:6px; padding:10px 14px; margin:14px 0; }
+  .tblwrap { overflow-x:auto; }
+  @media (max-width:600px) { nav ol { columns:1; } h1 { font-size:1.6rem; } }
+  @media print { nav { display:none; } .wrap { padding:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>FrameForge User Guide</h1>
+  <p>A Figma-style website layout designer: HTML/CSS/JS frontend, Python (Flask + SQLite) backend.</p>
+</header>
+
+<nav>
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#start">Getting started</a></li>
+    <li><a href="#canvas">Navigating the canvas</a></li>
+    <li><a href="#draw">Drawing</a></li>
+    <li><a href="#select">Selecting and moving</a></li>
+    <li><a href="#layers">Layers panel</a></li>
+    <li><a href="#props">Properties panel</a></li>
+    <li><a href="#save">Saving and loading</a></li>
+    <li><a href="#export">Exporting to HTML/CSS</a></li>
+    <li><a href="#keys">Shortcuts</a></li>
+    <li><a href="#trouble">Troubleshooting</a></li>
+  </ol>
+</nav>
+
+<h2 id="start"><span class="n">1</span>Getting started</h2>
+<p>The first launch loads a demo landing page with desktop and mobile frames. Select its layers to see how it is built. To start empty, click <strong>New</strong>.</p>
+<ul>
+  <li><strong>Top bar:</strong> project name, undo/redo, New, Open, Import, Export JSON, Preview, Export HTML, Save.</li>
+  <li><strong>Left panel:</strong> the Layers list.</li>
+  <li><strong>Centre:</strong> the canvas, with the tool palette at the bottom and zoom controls at the bottom right.</li>
+  <li><strong>Right panel:</strong> Design properties for the selected layer.</li>
+</ul>
+
+<h2 id="canvas"><span class="n">2</span>Navigating the canvas</h2>
+<div class="tblwrap"><table>
+  <tr><th>Action</th><th>How</th></tr>
+  <tr><td>Pan</td><td>Hold <kbd>Space</kbd> and drag, use the Hand tool (<kbd>H</kbd>), or scroll</td></tr>
+  <tr><td>Zoom</td><td><kbd>Ctrl/Cmd</kbd> + scroll, or the <strong>+ / − / Fit</strong> buttons</td></tr>
+  <tr><td>Fit everything</td><td><strong>Fit</strong> button or <kbd>Shift</kbd>+<kbd>1</kbd></td></tr>
+  <tr><td>Reset to 100%</td><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td></tr>
+</table></div>
+
+<h2 id="draw"><span class="n">3</span>Drawing</h2>
+<p>Pick a tool, then drag on the canvas. A single click gives you the default size.</p>
+<div class="tblwrap"><table>
+  <tr><th>Tool</th><th>Key</th><th>Notes</th></tr>
+  <tr><td>Move</td><td><kbd>V</kbd></td><td>Select and drag</td></tr>
+  <tr><td>Hand</td><td><kbd>H</kbd></td><td>Pan</td></tr>
+  <tr><td>Frame</td><td><kbd>F</kbd></td><td>A page or screen. Other elements nest inside it</td></tr>
+  <tr><td>Rectangle</td><td><kbd>R</kbd></td><td>Cards, navbars, backgrounds</td></tr>
+  <tr><td>Ellipse</td><td><kbd>O</kbd></td><td>Circles, avatars</td></tr>
+  <tr><td>Text</td><td><kbd>T</kbd></td><td>Starts editing as soon as you draw it</td></tr>
+  <tr><td>Button</td><td><kbd>B</kbd></td><td>Styled button with an editable label</td></tr>
+  <tr><td>Image</td><td><kbd>I</kbd></td><td>Placeholder. Paste an image URL in the properties panel</td></tr>
+</table></div>
+<div class="tip"><strong>Tip:</strong> Draw a Frame first (use a preset such as Desktop 1440×900 or Mobile 375×812). Anything you draw or drop inside it becomes its child, and it moves and exports with that frame.</div>
+
+<h2 id="select"><span class="n">4</span>Selecting and moving</h2>
+<ul>
+  <li>Click a layer to select it. <kbd>Shift</kbd>+click adds or removes layers from the selection.</li>
+  <li>Drag to move. Red guides appear when edges or centres line up with neighbours. Hold <kbd>Alt</kbd> to turn snapping off. Hold <kbd>Shift</kbd> to lock movement to one axis.</li>
+  <li>Drag the 8 handles to resize. <kbd>Shift</kbd> with a corner handle keeps the proportions.</li>
+  <li>Arrow keys nudge by 1px. <kbd>Shift</kbd>+arrow nudges by 10px.</li>
+  <li>Drag a layer out of one frame and into another to re-parent it.</li>
+  <li>Double-click text or a button (or press <kbd>Enter</kbd>) to edit it. Press <kbd>Esc</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to finish.</li>
+</ul>
+
+<h2 id="layers"><span class="n">5</span>Layers panel</h2>
+<ul>
+  <li>Double-click a name to rename it.</li>
+  <li>The 🔒 and 👁 icons lock and hide a layer. Locked layers can't be selected on the canvas. Hidden layers are left out of the export.</li>
+  <li>Children are indented under their frame. Layers higher in the list sit on top.</li>
+</ul>
+
+<h2 id="props"><span class="n">6</span>Properties panel</h2>
+<ul>
+  <li><strong>Position:</strong> X, Y, W, H are relative to the parent frame. Children also get align buttons (left, centre, right, top, middle, bottom).</li>
+  <li><strong>Text and Button:</strong> content, size, weight, font (Inter, Georgia, Mono), alignment, colour.</li>
+  <li><strong>Appearance:</strong> fill (or No fill), corner radius, opacity, drop shadow. Frames also have <em>Clip content</em>.</li>
+  <li><strong>Stroke:</strong> colour and width.</li>
+  <li><strong>Order buttons:</strong> bring to front, forward, backward, send to back. Shortcuts: <kbd>]</kbd>, <kbd>[</kbd>, <kbd>Ctrl</kbd>+<kbd>]</kbd>, <kbd>Ctrl</kbd>+<kbd>[</kbd>.</li>
+</ul>
+
+<h2 id="save"><span class="n">7</span>Saving and loading</h2>
+<ul>
+  <li><strong>Save</strong> (or <kbd>Ctrl</kbd>+<kbd>S</kbd>) stores the project in the local database. After the first save, changes auto-save about 1.5 seconds after you stop editing. The status label next to the name shows <em>Unsaved</em>, <em>Saving…</em> or <em>Saved</em>.</li>
+  <li><strong>Open</strong> lists your projects, newest first. Click one to load it. The 🗑 icon deletes it.</li>
+  <li>The app reopens your last project on reload.</li>
+  <li><strong>Export JSON</strong> and <strong>Import</strong> move designs between machines as <code>.json</code> files.</li>
+</ul>
+
+<h2 id="export"><span class="n">8</span>Exporting to HTML/CSS</h2>
+<ul>
+  <li><strong>Preview</strong> opens the generated page in a new tab.</li>
+  <li><strong>Export HTML</strong> downloads a standalone <code>.html</code> file with inline CSS and no dependencies.</li>
+  <li>Each top-level frame becomes a <code>&lt;section&gt;</code>, text becomes <code>&lt;div&gt;</code>, buttons become <code>&lt;button&gt;</code>, and images become <code>&lt;img&gt;</code>.</li>
+  <li>The export uses <strong>absolute positioning</strong>, so it looks exactly like the canvas but won't reflow on other screen sizes. Make one frame per breakpoint (the demo has desktop and mobile).</li>
+  <li>Images need a public URL (<code>https://…</code>) to appear in the export.</li>
+</ul>
+
+<h2 id="keys"><span class="n">9</span>Shortcuts</h2>
+<div class="tblwrap"><table>
+  <tr><th>Shortcut</th><th>Action</th></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> (or <kbd>Ctrl</kbd>+<kbd>Y</kbd>)</td><td>Undo / redo</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>V</kbd> / <kbd>D</kbd></td><td>Copy / paste / duplicate</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select all top-level layers</td></tr>
+  <tr><td><kbd>Delete</kbd> or <kbd>Backspace</kbd></td><td>Delete</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>Back to Move tool, or deselect</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save</td></tr>
+</table></div>
+
+<h2 id="trouble"><span class="n">10</span>Troubleshooting</h2>
+<ul>
+  <li><strong>Can't select something:</strong> it may be locked. Check the 🔒 in Layers.</li>
+  <li><strong>Layer vanished:</strong> it may be hidden. Check the 👁 icon.</li>
+  <li><strong>Image is blank:</strong> paste a full <code>https://</code> image URL in the properties panel.</li>
+  <li><strong>Data location:</strong> projects live in <code>designs.db</code> next to <code>app.py</code>. Delete that file to reset everything.</li>
+</ul>
+</div>
+</body>
+</html>
