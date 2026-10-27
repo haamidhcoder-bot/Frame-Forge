@@ -58,10 +58,12 @@
     <canvas id="rulerTop" class="ruler top" title="Drag down to add a guide"></canvas>
     <canvas id="rulerLeft" class="ruler left" title="Drag right to add a guide"></canvas>
 
-    <div class="toolbar" id="toolbar">
+    <div class="navtools" id="navtools">
       <button data-tool="move" title="Move (V)" class="active">➤</button>
       <button data-tool="hand" title="Hand (H)">✋</button>
-      <span class="tsep"></span>
+    </div>
+
+    <div class="toolbar" id="toolbar">
       <button data-tool="frame" title="Frame (F)">#</button>
       <button data-tool="rect" title="Rectangle (R)">▭</button>
       <button data-tool="ellipse" title="Ellipse (O)">◯</button>
@@ -74,7 +76,14 @@
       <button data-tool="input" title="Input field (N)">⌨</button>
       <button data-tool="checkbox" title="Checkbox (C)">☑</button>
       <button data-tool="select" title="Dropdown (D)">▾</button>
-      <button data-cmd="icons" title="Icons">★</button>
+      <span class="tsep"></span>
+      <button data-tool="icon" data-cmd="iconpicker" id="iconBtn" title="Icons (K)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button>
+    </div>
+
+    <div id="iconPicker" class="ipicker" hidden>
+      <input id="iconSearch" type="search" placeholder="Search icons…" spellcheck="false" autocomplete="off">
+      <div id="iconGrid" class="icongrid"></div>
+      <div class="ihint">Pick an icon, then click or drag on the canvas to place it.</div>
     </div>
 
     <canvas id="minimap" class="minimap" title="Minimap – click to navigate"></canvas>
@@ -99,6 +108,8 @@
   <label><input type="checkbox" data-ui="grid"> Layout grid <em>Ctrl+'</em></label>
   <label><input type="checkbox" data-ui="minimap"> Minimap</label>
   <label><input type="checkbox" data-ui="snap"> Snapping</label>
+  <label><input type="checkbox" data-ui="flow"> Show flow arrows</label>
+  <label><input type="checkbox" data-ui="flowSel"> &nbsp;&nbsp;Only for selected</label>
 </div>
 <div id="exportMenu" class="menu" hidden>
   <div class="mhead">Code</div>
@@ -108,6 +119,7 @@
   <button data-exp="react">React component (.zip)</button>
   <button data-exp="tailwind">Tailwind HTML</button>
   <button data-exp="bootstrap">Bootstrap 5 (.zip)</button>
+  <button data-exp="flask">Flask project (.zip, backend + pages)</button>
   <div class="mhead">Options</div>
   <label class="mrow">Layout
     <select id="expMode"><option value="responsive">Responsive (flows)</option><option value="absolute">Pixel-perfect</option></select></label>
@@ -150,7 +162,7 @@
   <div class="modal-box lib">
     <div class="modal-head"><strong>Keyboard shortcuts</strong><button id="shortcutsClose" class="tbtn">✕</button></div>
     <div class="libbody keys">
-      <div><h4>Tools</h4><p><kbd>V</kbd> Move · <kbd>H</kbd> Hand · <kbd>F</kbd> Frame · <kbd>R</kbd> Rectangle · <kbd>O</kbd> Ellipse · <kbd>L</kbd> Line · <kbd>P</kbd> Polygon · <kbd>T</kbd> Text · <kbd>B</kbd> Button · <kbd>I</kbd> Image · <kbd>N</kbd> Input · <kbd>C</kbd> Checkbox · <kbd>D</kbd> Dropdown</p></div>
+      <div><h4>Tools</h4><p><kbd>V</kbd> Move · <kbd>H</kbd> Hand · <kbd>F</kbd> Frame · <kbd>R</kbd> Rectangle · <kbd>O</kbd> Ellipse · <kbd>L</kbd> Line · <kbd>P</kbd> Polygon · <kbd>T</kbd> Text · <kbd>B</kbd> Button · <kbd>I</kbd> Image · <kbd>N</kbd> Input · <kbd>C</kbd> Checkbox · <kbd>D</kbd> Dropdown · <kbd>K</kbd> Icons</p></div>
       <div><h4>Edit</h4><p><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> Redo · <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>X</kbd>/<kbd>V</kbd> Copy/Cut/Paste · <kbd>Ctrl</kbd>+<kbd>D</kbd> Duplicate · <kbd>Del</kbd> Delete · <kbd>Ctrl</kbd>+<kbd>A</kbd> Select all · <kbd>Ctrl</kbd>+<kbd>S</kbd> Save</p></div>
       <div><h4>Structure</h4><p><kbd>Ctrl</kbd>+<kbd>G</kbd> Group · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> Ungroup · <kbd>Shift</kbd>+<kbd>A</kbd> Add/remove auto layout · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> Create component · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> Detach instance · <kbd>]</kbd> <kbd>[</kbd> Forward / backward · <kbd>Ctrl</kbd>+<kbd>]</kbd> <kbd>[</kbd> Front / back · <kbd>Enter</kbd> Edit text or select child</p></div>
       <div><h4>View</h4><p><kbd>Space</kbd>+drag Pan · <kbd>Ctrl</kbd>+scroll Zoom · <kbd>Shift</kbd>+<kbd>1</kbd> Fit all · <kbd>Shift</kbd>+<kbd>2</kbd> Fit selection · <kbd>Ctrl</kbd>+<kbd>0</kbd> 100% · <kbd>Shift</kbd>+<kbd>R</kbd> Rulers · <kbd>Ctrl</kbd>+<kbd>'</kbd> Grid · <kbd>Arrows</kbd> Nudge (<kbd>Shift</kbd> ×10) · <kbd>Shift</kbd>+drag Constrain · <kbd>Alt</kbd>+drag No snapping · <kbd>Esc</kbd> Cancel</p></div>

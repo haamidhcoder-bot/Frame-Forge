@@ -130,6 +130,63 @@ function centerOn(wx, wy) {
 /* -------------------------------------------------------------- overlay */
 const HANDLES = { nw: [0, 0], n: [50, 0], ne: [100, 0], e: [100, 50], se: [100, 100], s: [50, 100], sw: [0, 100], w: [0, 50] };
 const screenRect = n => { const vr = viewport.getBoundingClientRect(), r = n.getBoundingClientRect(); return { l: r.left - vr.left, t: r.top - vr.top, w: r.width, h: r.height }; };
+
+/* ------------------------------------------------------------ flow arrows (links shown as a flowchart) */
+function flowGo(id) {
+  const t = get(id); if (!t) return;
+  if (t.page !== S.page) setPage(t.page);
+  setSel([id]); fit([id]);
+}
+function rootOf(e) { while (e.parent && get(e.parent)) e = get(e.parent); return e; }
+function inside(e, anc) { for (let p = e; p; p = p.parent && get(p.parent)) if (p.id === anc.id) return true; return false; }
+function drawFlow() {
+  if (!S.ui.flow) return;
+  let list = pageEls().filter(e => e.link && e.link.kind && e.visible && nodeOf(e.id));
+  if (S.ui.flowSel) list = list.filter(e => S.sel.includes(e.id));
+  if (!list.length) return;
+  const vr = viewport.getBoundingClientRect(), NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'flowsvg'); svg.setAttribute('width', vr.width); svg.setAttribute('height', vr.height);
+  svg.innerHTML = '<defs><marker id="ffArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--flow)"/></marker></defs>';
+  overlay.appendChild(svg);
+  const div = (cls, css, txt) => { const d = document.createElement('div'); d.className = cls; Object.assign(d.style, css); if (txt != null) d.textContent = txt; overlay.appendChild(d); return d; };
+  const path = (d, dashed) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'flowpath' + (dashed ? ' dashed' : '')); p.setAttribute('marker-end', 'url(#ffArrow)'); svg.appendChild(p); };
+  const dot = (x, y) => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 4); c.setAttribute('class', 'flowdot'); svg.appendChild(c); };
+  const slot = new Map();
+  const maxRight = Math.max(...pageEls().filter(f => f.type === 'frame' && !f.parent && nodeOf(f.id)).map(f => { const q = screenRect(nodeOf(f.id)); return q.l + q.w; }), 0);
+  list.forEach(e => {
+    const r = screenRect(nodeOf(e.id));
+    div('flowsrc', { left: r.l - 2 + 'px', top: r.t - 2 + 'px', width: r.w + 4 + 'px', height: r.h + 4 + 'px' });
+    const sx = r.l + r.w / 2, sy = r.t + r.h;
+    const lk = e.link, target = lk.kind === 'frame' ? get(lk.value) : null;
+    const pill = (txt, cls, go) => {
+      const i = slot.get('all') || 0; slot.set('all', i + 1);
+      const py = Math.max(60, r.t) + i * 38;
+      const p = div('flowpill' + (cls ? ' ' + cls : ''), { left: '0px', top: py + 'px' }, txt);
+      const px = Math.max(sx + 20, Math.min(maxRight + 70, vr.width - p.offsetWidth - 14)); p.style.left = px + 'px';
+      if (go) p.dataset.flowgo = go;
+      dot(sx, sy);
+      const d = Math.max(40, Math.abs(px - sx) / 2);
+      path(`M${sx} ${sy} C${sx} ${sy + 50} ${px - d} ${py + 12} ${px - 2} ${py + 12}`, true);
+    };
+    if (lk.kind === 'url') { if (lk.value) pill('🌐 ' + (lk.value.length > 34 ? lk.value.slice(0, 33) + '…' : lk.value)); return; }
+    if (!target) { div('flowchip warn', { left: sx + 'px', top: sy + 16 + 'px' }, '⚠ no target'); return; }
+    if (target.page !== S.page || !nodeOf(target.id)) { const pg = S.pages.find(p => p.id === target.page); pill('↗ ' + target.name + (pg ? ' (' + pg.name + ')' : ''), '', target.id); return; }
+    if (inside(e, target) && target.id === rootOf(e).id) { div('flowchip', { left: sx + 'px', top: sy + 16 + 'px' }, '↻ ' + target.name).dataset.flowgo = target.id; return; }
+    const t = screenRect(nodeOf(target.id));
+    const cands = [
+      { x: t.l, y: t.t + t.h / 2, ox: -1, oy: 0 }, { x: t.l + t.w, y: t.t + t.h / 2, ox: 1, oy: 0 },
+      { x: t.l + t.w / 2, y: t.t, ox: 0, oy: -1 }, { x: t.l + t.w / 2, y: t.t + t.h, ox: 0, oy: 1 }];
+    cands.sort((a, b) => Math.hypot(a.x - sx, a.y - sy) - Math.hypot(b.x - sx, b.y - sy));
+    const c = cands[0], dist = Math.hypot(c.x - sx, c.y - sy), k = Math.max(40, dist / 2.2);
+    const x0 = sx, y0 = sy, x1 = sx, y1 = sy + k, x2 = c.x + c.ox * k, y2 = c.y + c.oy * k, x3 = c.x + c.ox * 2, y3 = c.y + c.oy * 2;
+    dot(sx, sy); path(`M${x0} ${y0} C${x1} ${y1} ${x2} ${y2} ${x3} ${y3}`, false);
+    const mx = (x0 + 3 * x1 + 3 * x2 + x3) / 8, my = (y0 + 3 * y1 + 3 * y2 + y3) / 8;
+    const label = (e.type === 'button' || e.type === 'text') && e.text ? e.text : e.name;
+    div('flowchip', { left: mx + 'px', top: my + 'px' }, `${label.length > 18 ? label.slice(0, 17) + '…' : label} → ${target.name}`).dataset.flowgo = target.id;
+  });
+}
+
 function renderOverlay() {
   overlay.innerHTML = '';
   const add = (cls, css, parent = overlay) => { const d = document.createElement('div'); d.className = cls; Object.assign(d.style, css); parent.appendChild(d); return d; };
@@ -149,6 +206,7 @@ function renderOverlay() {
     const n = nodeOf(dropHint);
     if (n) { const r = screenRect(n); add('drophint', { left: r.l + 'px', top: r.t + 'px', width: r.w + 'px', height: r.h + 'px' }); }
   }
+  drawFlow();
   S.sel.forEach(id => {
     const n = nodeOf(id), e = get(id); if (!n || !e || !e.visible) return;
     const r = screenRect(n);

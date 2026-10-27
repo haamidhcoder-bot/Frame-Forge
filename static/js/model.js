@@ -18,7 +18,7 @@ const S = {
   tokens: {}, textStyles: {},
   sel: [], tool: 'move', views: {}, view: { x: 120, y: 90, z: 0.5 },
   hist: [], hi: -1, dirty: false, clip: null,
-  ui: { rulers: true, grid: false, minimap: true, snap: true },
+  ui: { rulers: true, grid: false, minimap: true, snap: true, flow: true, flowSel: false },
 };
 
 /* --------------------------------------------------------------- defaults */
@@ -63,7 +63,7 @@ const TYPE_DEF = {
   instance: { name: 'Instance' },
 };
 const ICON = { frame: '#', group: '▢', rect: '▭', ellipse: '◯', line: '╱', polygon: '⬠', text: 'T', button: '▣', image: '▨', icon: '★', input: '⌨', checkbox: '☑', select: '▾', instance: '◇' };
-const CREATE_TOOLS = ['frame', 'rect', 'ellipse', 'line', 'polygon', 'text', 'button', 'image', 'input', 'checkbox', 'select'];
+const CREATE_TOOLS = ['frame', 'rect', 'ellipse', 'line', 'polygon', 'text', 'button', 'image', 'input', 'checkbox', 'select', 'icon'];
 
 function mk(type, over = {}) {
   const d = TYPE_DEF[type] || {};

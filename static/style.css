@@ -198,6 +198,24 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .toolbar button { width: 34px; height: 34px; border: none; border-radius: 7px; background: transparent; font-size: 15px; flex: none; }
 .toolbar button:hover { background: var(--panel2); }
 .toolbar button.active { background: var(--accent); color: #fff; }
+.navtools {
+  position: absolute; left: 30px; top: 30px; display: flex; gap: 2px; padding: 3px; z-index: 6;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 14px var(--shadow);
+}
+.navtools button { width: 32px; height: 32px; border: none; border-radius: 7px; background: transparent; font-size: 15px; }
+.navtools button:hover { background: var(--panel2); }
+.navtools button.active { background: var(--accent); color: #fff; }
+.toolbar button svg { display: block; margin: 0 auto; }
+.ipicker {
+  position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%); z-index: 7; width: min(420px, calc(100% - 24px));
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 12px 30px var(--shadow);
+}
+.ipicker[hidden] { display: none; }
+.ipicker input { width: 100%; height: 32px; padding: 0 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: inherit; }
+.ipicker .icongrid { max-height: 260px; overflow-y: auto; margin-top: 8px; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+.ipicker .icongrid button { padding: 10px 2px; }
+.ipicker .icongrid button.on { border-color: var(--accent); background: var(--panel2); }
+.ipicker .ihint { margin-top: 8px; font-size: 11px; color: var(--muted); }
 .tsep { width: 1px; background: var(--border); margin: 4px 4px; flex: none; }
 .minimap { position: absolute; left: 30px; bottom: 16px; width: 160px; height: 104px; z-index: 6; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 14px var(--shadow); cursor: pointer; touch-action: none; }
 .zoombar {
@@ -281,3 +299,15 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
   .minimap { display: none; }
   .pname { width: 110px; }
 }
+
+/* flow arrows */
+:root { --flow: #ff8a3d; }
+.flowsvg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.flowpath { fill: none; stroke: var(--flow); stroke-width: 2; }
+.flowpath.dashed { stroke-dasharray: 6 5; }
+.flowdot { fill: var(--flow); }
+.flowsrc { position: absolute; border: 2px solid var(--flow); border-radius: 6px; pointer-events: none; }
+.flowchip { position: absolute; transform: translate(-50%, -50%); background: var(--flow); color: #1b1d23; font: 600 11px/1 system-ui, sans-serif; padding: 4px 8px; border-radius: 10px; white-space: nowrap; pointer-events: auto; cursor: pointer; box-shadow: 0 1px 4px #0005; }
+.flowchip.warn { background: #ffd2d2; color: #8a1c1c; cursor: default; }
+.flowpill { position: absolute; border: 1.5px dashed var(--flow); background: var(--panel, #2a2620); color: var(--flow); border-radius: 8px; padding: 7px 11px; font: 12px/1 system-ui, sans-serif; white-space: nowrap; pointer-events: auto; }
+.flowpill[data-flowgo] { cursor: pointer; }

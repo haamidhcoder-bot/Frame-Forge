@@ -181,7 +181,7 @@ async function exportPdf() {
 }
 
 /* ------------------------------------------------------------------- menus */
-function closeMenus() { $$('.menu').forEach(m => { m.hidden = true; }); }
+function closeMenus() { $$('.menu, .ipicker').forEach(m => { m.hidden = true; }); }
 function toggleMenu(id, anchor) {
   const m = $(id), was = !m.hidden; closeMenus();
   if (was) return;
@@ -229,7 +229,7 @@ document.querySelector('.topbar').addEventListener('click', ev => {
      theme: () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'),
      left: () => document.body.classList.toggle('show-left'), right: () => document.body.classList.toggle('show-right') })[c]();
 });
-window.addEventListener('pointerdown', ev => { if (!ev.target.closest('.menu') && !ev.target.closest('[data-cmd$=menu]')) closeMenus(); }, true);
+window.addEventListener('pointerdown', ev => { if (!ev.target.closest('.menu') && !ev.target.closest('.ipicker') && !ev.target.closest('[data-cmd$=menu]') && !ev.target.closest('[data-cmd=iconpicker]')) closeMenus(); }, true);
 $('#projectName').addEventListener('input', ev => { S.name = ev.target.value || 'Untitled design'; markDirty(); });
 $('#modalClose').addEventListener('click', () => $('#modal').hidden = true);
 $('#modal').addEventListener('pointerdown', ev => { if (ev.target.id === 'modal') $('#modal').hidden = true; });

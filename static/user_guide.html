@@ -94,7 +94,7 @@
 <tr><td>Button</td><td><kbd>B</kbd></td><td>Exports as a real <code>&lt;button&gt;</code>; can link to a frame or URL.</td></tr>
 <tr><td>Image</td><td><kbd>I</kbd></td><td>See Images and icons.</td></tr>
 <tr><td>Input, Checkbox, Dropdown</td><td><kbd>N</kbd> <kbd>C</kbd> <kbd>D</kbd></td><td>Form controls exported as real form elements.</td></tr>
-<tr><td>Icon</td><td>Library</td><td>Built-in icon set.</td></tr>
+<tr><td>Icon</td><td><kbd>K</kbd></td><td>Opens the icon picker. Choose an icon, then click or drag on the canvas to place it.</td></tr>
 </table></div>
 
 <h2 id="select"><span class="n">4</span>Selecting, grouping and aligning</h2>
@@ -139,7 +139,7 @@
 <ul>
   <li><strong>Upload:</strong> choose the Image tool and click, then pick a file; or drag an image file onto the canvas; or paste an image from the clipboard. Uploaded images are embedded in the design.</li>
   <li><strong>Fit mode:</strong> cover, contain or fill in Properties.</li>
-  <li><strong>Icons:</strong> insert from the Library; colour and size follow the stroke colour and the layer size.</li>
+  <li><strong>Icons:</strong> click the star button in the toolbar (or press <kbd>K</kbd>), pick an icon, then click or drag on the canvas to place it (the Library also has an Icons tab); colour and size follow the stroke colour and the layer size.</li>
 </ul>
 
 <h2 id="comp"><span class="n">9</span>Components and instances</h2>
@@ -177,6 +177,8 @@
   <li>Select a button or any layer and, under <strong>Link</strong> in Properties, choose a target <strong>frame</strong> or enter a <strong>URL</strong>.</li>
   <li>Press <strong>&#9654; Present</strong> to view the design full screen. Clicking linked layers navigates between frames. <kbd>Esc</kbd> exits; a back control returns to the previous frame.</li>
   <li>The same links work in the exported HTML.</li>
+  <li><strong>Flow arrows:</strong> every layer that has a link shows an orange outline and an arrow to its target, with a label such as <em>Sign up &rarr; Landing &ndash; Mobile</em>. Solid arrows go to frames; dashed arrows go to an external URL box or to a frame on another page. Click a label to jump to the target; use <strong>Go to target</strong> in the Interaction section for the same. A layer whose link has no target shows <em>no target</em>.</li>
+  <li>Turn arrows off or limit them to the selected layers under <strong>View &#9662; &rsaquo; Show flow arrows / Only for selected</strong>. They appear only in the editor, not in exports.</li>
 </ul>
 
 <h2 id="save"><span class="n">14</span>Saving and loading</h2>
@@ -200,6 +202,7 @@
 <tr><td>React</td><td>Zip with a <code>.jsx</code> component and its CSS.</td></tr>
 <tr><td>Tailwind</td><td>HTML using Tailwind utility classes (loaded from the Tailwind CDN).</td></tr>
 <tr><td>Bootstrap</td><td>Zip with Bootstrap utility classes (CDN) and a small stylesheet.</td></tr>
+<tr><td>Flask project (.zip)</td><td>A ready-made Python backend: <code>app.py</code>, one page template per frame, <code>static/style.css</code> and <code>requirements.txt</code>. Each frame becomes a route (the first is <code>/</code>), and buttons linked to a frame navigate to it. On a page with input fields, a button that has no link posts the field values to <code>/submit</code>, which saves them in a SQLite file. Read them at <code>/admin/submissions?token=&hellip;</code> once an <code>ADMIN_TOKEN</code> environment variable is set; without it that page stays closed. Breakpoints are ignored in this format.</td></tr>
 <tr><td>PNG, PNG @2x, SVG</td><td>Image of the selected frame.</td></tr>
 <tr><td>PDF</td><td>Opens the print dialog for the frame; choose Save as PDF.</td></tr>
 <tr><td>Project (.json)</td><td>The editable FrameForge document.</td></tr>
@@ -216,7 +219,7 @@
 <h2 id="keys"><span class="n">17</span>Shortcuts</h2>
 <div class="tblwrap"><table>
 <tr><th>Area</th><th>Keys</th></tr>
-<tr><td>Tools</td><td><kbd>V</kbd> Move, <kbd>H</kbd> Hand, <kbd>F</kbd> Frame, <kbd>R</kbd> Rectangle, <kbd>O</kbd> Ellipse, <kbd>L</kbd> Line, <kbd>P</kbd> Polygon, <kbd>T</kbd> Text, <kbd>B</kbd> Button, <kbd>I</kbd> Image, <kbd>N</kbd> Input, <kbd>C</kbd> Checkbox, <kbd>D</kbd> Dropdown</td></tr>
+<tr><td>Tools</td><td><kbd>V</kbd> Move, <kbd>H</kbd> Hand, <kbd>F</kbd> Frame, <kbd>R</kbd> Rectangle, <kbd>O</kbd> Ellipse, <kbd>L</kbd> Line, <kbd>P</kbd> Polygon, <kbd>T</kbd> Text, <kbd>B</kbd> Button, <kbd>I</kbd> Image, <kbd>N</kbd> Input, <kbd>C</kbd> Checkbox, <kbd>D</kbd> Dropdown, <kbd>K</kbd> Icons</td></tr>
 <tr><td>Edit</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo, <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>X</kbd>/<kbd>V</kbd>, <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate, <kbd>Del</kbd> delete, <kbd>Ctrl</kbd>+<kbd>A</kbd> select all, <kbd>Ctrl</kbd>+<kbd>S</kbd> save</td></tr>
 <tr><td>Structure</td><td><kbd>Ctrl</kbd>+<kbd>G</kbd> group, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> ungroup, <kbd>Shift</kbd>+<kbd>A</kbd> auto layout, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> create component, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> detach instance, <kbd>[</kbd> <kbd>]</kbd> order, <kbd>Enter</kbd> edit text / select child</td></tr>
 <tr><td>View</td><td><kbd>Space</kbd>+drag pan, <kbd>Ctrl</kbd>+scroll zoom, <kbd>Shift</kbd>+<kbd>1</kbd> fit all, <kbd>Shift</kbd>+<kbd>2</kbd> fit selection, <kbd>Ctrl</kbd>+<kbd>0</kbd> 100%, <kbd>Shift</kbd>+<kbd>R</kbd> rulers, <kbd>Ctrl</kbd>+<kbd>'</kbd> grid, arrows nudge, <kbd>Esc</kbd> cancel</td></tr>

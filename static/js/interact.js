@@ -6,15 +6,37 @@ const pointers = new Map();
 
 function setTool(t) {
   S.tool = t;
-  $$('#toolbar button[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+  $$('#toolbar button[data-tool], #navtools button[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
   viewport.classList.toggle('hand', t === 'hand');
   viewport.classList.toggle('create', CREATE_TOOLS.includes(t));
 }
-$('#toolbar').addEventListener('click', ev => {
+['#toolbar', '#navtools'].forEach(sel => $(sel).addEventListener('click', ev => {
   const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.cmd === 'iconpicker') { toggleIconPicker(); return; }
+  closeMenus();
   if (b.dataset.tool) setTool(b.dataset.tool);
-  else if (b.dataset.cmd === 'icons') openLibrary('icons');
-});
+}));
+
+/* ---- icon picker: choose an icon, then click / drag on the canvas to place it ---- */
+function renderIconGrid() {
+  const q = $('#iconSearch').value.trim().toLowerCase(), grid = $('#iconGrid'); grid.innerHTML = '';
+  const names = Object.keys(ICONS).filter(n => !q || n.includes(q));
+  names.forEach(n => {
+    const b = document.createElement('button'); b.title = n; b.type = 'button';
+    if (n === S.pendingIcon && S.tool === 'icon') b.classList.add('on');
+    b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg><span>${n}</span>`;
+    b.addEventListener('click', () => { S.pendingIcon = n; closeMenus(); setTool('icon'); toast && toast(`Click or drag on the canvas to place “${n}”`); });
+    grid.appendChild(b);
+  });
+  if (!names.length) grid.innerHTML = '<p class="libnote">No icons match.</p>';
+}
+function toggleIconPicker() {
+  const p = $('#iconPicker'), was = !p.hidden; closeMenus();
+  if (was) return;
+  p.hidden = false; $('#iconSearch').value = ''; renderIconGrid(); $('#iconSearch').focus();
+}
+$('#iconSearch').addEventListener('input', renderIconGrid);
+$('#iconSearch').addEventListener('keydown', ev => { if (ev.key === 'Escape') closeMenus(); });
 $('.zoombar').addEventListener('click', ev => {
   const z = ev.target.closest('[data-zoom]')?.dataset.zoom;
   if (z === 'in') zoomCenter(1.25); else if (z === 'out') zoomCenter(0.8); else if (z === 'fit') fit();
@@ -47,6 +69,8 @@ rulerLeft.addEventListener('pointerdown', ev => { ev.preventDefault(); startGuid
 
 /* ------------------------------------------------------------ pointer down */
 viewport.addEventListener('pointerdown', ev => {
+  const fg = ev.target.closest && ev.target.closest('[data-flowgo]');
+  if (fg) { ev.preventDefault(); flowGo(fg.dataset.flowgo); return; }
   pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
   if (pointers.size === 2) { startPinch(); return; }
   if (pointers.size > 2) return;
@@ -73,7 +97,8 @@ viewport.addEventListener('pointerdown', ev => {
   }
   if (CREATE_TOOLS.includes(S.tool)) {
     const par = frameAt(wp), pa = par ? absPos(par) : { x: 0, y: 0 };
-    const e = mk(S.tool, { parent: par ? par.id : null, x: Math.round(wp.x - pa.x), y: Math.round(wp.y - pa.y), w: 1, h: S.tool === 'line' ? 2 : 1 });
+    const extra = S.tool === 'icon' ? { icon: S.pendingIcon || 'star', name: 'Icon ' + (S.pendingIcon || 'star') } : {};
+    const e = mk(S.tool, { parent: par ? par.id : null, x: Math.round(wp.x - pa.x), y: Math.round(wp.y - pa.y), w: 1, h: S.tool === 'line' ? 2 : 1, ...extra });
     S.els.push(e); reindex(); S.sel = [e.id]; render();
     drag = { type: 'create', id: e.id, sx: wp.x, sy: wp.y, pa }; return;
   }
@@ -174,6 +199,7 @@ window.addEventListener('pointermove', ev => {
     e.x = Math.round(Math.min(drag.sx, wp.x) - pa.x); e.y = Math.round(Math.min(drag.sy, wp.y) - pa.y);
     const w = Math.max(1, Math.round(Math.abs(wp.x - drag.sx))), h = Math.max(1, Math.round(Math.abs(wp.y - drag.sy)));
     if (e.type === 'line') { if (Math.abs(wp.y - drag.sy) > Math.abs(wp.x - drag.sx)) { e.w = 2; e.h = h; e.x = Math.round(drag.sx - pa.x); e.y = Math.round(Math.min(drag.sy, wp.y) - pa.y); } else { e.w = w; e.h = 2; e.y = Math.round(drag.sy - pa.y); } }
+    else if (e.type === 'icon') { const s = Math.max(w, h); e.w = s; e.h = s; e.x = Math.round((wp.x < drag.sx ? drag.sx - s : drag.sx) - pa.x); e.y = Math.round((wp.y < drag.sy ? drag.sy - s : drag.sy) - pa.y); }
     else { e.w = w; e.h = h; }
     repaint(e.id); measure(); renderOverlay(); syncProps();
   }
@@ -322,6 +348,7 @@ window.addEventListener('keydown', ev => {
     renderOverlay(); syncProps(); return;
   }
   if (ev.altKey) return;
+  if (k === 'k') { ev.preventDefault(); toggleIconPicker(); return; }
   const tools = { v: 'move', h: 'hand', f: 'frame', r: 'rect', o: 'ellipse', l: 'line', p: 'polygon', t: 'text', b: 'button', i: 'image', n: 'input', c: 'checkbox', d: 'select' };
   if (tools[k]) setTool(tools[k]);
 });

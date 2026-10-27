@@ -240,6 +240,7 @@ function renderProps() {
     <label class="f"><span>Do</span><select id="linkKind"><option value="">Nothing</option><option value="frame"${lk.kind === 'frame' ? ' selected' : ''}>Go to frame</option><option value="url"${lk.kind === 'url' ? ' selected' : ''}>Open URL</option></select></label>`;
   if (lk.kind === 'frame') h += `<label class="f" style="margin-top:6px"><span>To</span><select id="linkValue"><option value="">— choose —</option>${frames.map(f => `<option value="${f.id}"${lk.value === f.id ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label>`;
   if (lk.kind === 'url') h += `<input class="url" id="linkValue" style="margin-top:6px" placeholder="https://…" value="${esc(lk.value || '')}" spellcheck="false">`;
+  if (lk.kind === 'frame' && lk.value && get(lk.value)) h += `<button class="tbtn" data-act="gotolink" style="margin-top:6px">Go to target ↗</button>`;
   h += '</div>';
 
   propsEl.innerHTML = h;
@@ -319,6 +320,7 @@ propsEl.addEventListener('click', ev => {
     case 'autolayout': return toggleAuto();
     case 'component': return createComponent();
     case 'detach': return detachInstance();
+    case 'gotolink': { const e = get(S.sel[0]); if (e && e.link) flowGo(e.link.value); return; }
     case 'gotomain': { const e = get(S.sel[0]), m = e && get(e.ref); if (m) { if (m.page !== S.page) setPage(m.page); setSel([m.id]); fit([m.id]); } return; }
     case 'addfill': return each(e => e.fills.push(solid('#d9d9d9')));
     case 'rmfill': return each(e => e.fills.splice(i, 1));
