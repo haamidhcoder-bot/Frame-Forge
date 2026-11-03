@@ -96,17 +96,22 @@ function insertSpec(spec, asPage) {
   if (!parent) fit([e.id]); else measure();
   closeLibrary();
 }
+let iconReplaceId = null;   // set when the Library is opened from the "Change icon" button
 function insertIcon(name) {
+  if (iconReplaceId) {
+    const t = get(iconReplaceId); iconReplaceId = null;
+    if (t && t.type === 'icon') { t.icon = name; commit(); render(); renderProps(); closeLibrary(); return; }
+  }
   const parent = insertionParent();
   const c = viewport.getBoundingClientRect(), pa = parent ? absPos(parent) : { x: 0, y: 0 };
-  const e = mk('icon', { name: 'Icon ' + name, icon: name, parent: parent ? parent.id : null, x: Math.round((c.width / 2 - S.view.x) / S.view.z - 16 - pa.x), y: Math.round((c.height / 2 - S.view.y) / S.view.z - 16 - pa.y) });
+  const e = mk('icon', { name: 'Icon ' + iconLabel(name), icon: name, parent: parent ? parent.id : null, x: Math.round((c.width / 2 - S.view.x) / S.view.z - 16 - pa.x), y: Math.round((c.height / 2 - S.view.y) / S.view.z - 16 - pa.y) });
   S.els.push(e); reindex(); S.sel = [e.id]; commit(); render(); closeLibrary();
 }
 
 /* --------------------------------------------------------------- library UI */
 let libTab = 'blocks';
 function openLibrary(tab) { libTab = tab || libTab; $('#libModal').hidden = false; renderLibrary(); }
-function closeLibrary() { $('#libModal').hidden = true; }
+function closeLibrary() { $('#libModal').hidden = true; iconReplaceId = null; }
 function renderLibrary() {
   $$('#libTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === libTab));
   const body = $('#libBody'); body.innerHTML = '';
@@ -121,9 +126,14 @@ function renderLibrary() {
     if (!list.length) { const p = document.createElement('p'); p.className = 'libnote'; p.innerHTML = 'No components yet. Select a frame or group and press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> (or the ◆ button) to turn it into a component. Then insert linked copies here — editing the main component updates every copy.'; body.appendChild(p); }
     list.forEach(m => card('◆ ' + m.name, `${Math.round(m.w)} × ${Math.round(m.h)} · ${m.page === S.page ? 'this page' : (S.pages.find(p => p.id === m.page) || {}).name}`, () => { const par = insertionParent(); createInstance(m.id, par && par.id !== m.id ? par.id : null); closeLibrary(); }));
   } else if (libTab === 'icons') {
+    const head = document.createElement('div'); head.className = 'iconhead';
+    head.innerHTML = '<div class="isets"></div><input type="search" placeholder="Search icons…" spellcheck="false" autocomplete="off">';
     const grid = document.createElement('div'); grid.className = 'icongrid';
-    Object.keys(ICONS).forEach(n => { const b = document.createElement('button'); b.title = n; b.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg><span>${n}</span>`; b.addEventListener('click', () => insertIcon(n)); grid.appendChild(b); });
-    body.appendChild(grid);
+    const q = $('input', head), paint = () => { grid._pick = insertIcon; fillIconGrid(grid, iconNames(iconSet, q.value), iconReplaceId && get(iconReplaceId) ? get(iconReplaceId).icon : null, 26); };
+    q.addEventListener('input', paint);
+    renderIconSets($('.isets', head), paint);
+    if (iconReplaceId) { const n = document.createElement('p'); n.className = 'libnote'; n.textContent = 'Pick an icon to replace the selected one.'; body.appendChild(n); }
+    body.appendChild(head); body.appendChild(grid); paint();
   }
 }
 $('#libTabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { libTab = b.dataset.tab; renderLibrary(); } });

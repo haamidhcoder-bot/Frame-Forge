@@ -23,20 +23,21 @@
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="new">New</button>
   <button class="tbtn txt" data-cmd="open">Open</button>
-  <button class="tbtn txt" data-cmd="import">Import</button>
+  <button class="tbtn txt" data-cmd="import" title="Import .json, .html, .zip, .svg, .png, .pdf or images – anything you can export">Import</button>
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="library" title="Blocks, pages, components, icons">Library</button>
   <button class="tbtn txt" data-cmd="styles" title="Colour and text styles">Styles</button>
   <button class="tbtn txt" data-cmd="viewmenu">View ▾</button>
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="present" title="Play the clickable prototype">▶ Present</button>
+  <button class="tbtn txt" data-cmd="devicepreview" title="Preview the selected frame on a phone, tablet or custom screen"><svg class="dvicon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg> Device Preview</button>
   <button class="tbtn txt" data-cmd="exportmenu">Export ▾</button>
   <button class="tbtn txt" data-cmd="publish" title="Save and open a public link">Publish</button>
   <button class="tbtn txt primary" data-cmd="save" title="Save (Ctrl+S)">Save</button>
   <button class="tbtn" id="themeBtn" data-cmd="theme" title="Light / dark theme">☀</button>
   <button class="tbtn" data-cmd="shortcuts" title="Keyboard shortcuts (?)">?</button>
   <button class="tbtn only-small" data-cmd="right" title="Design panel">⚙</button>
-  <input type="file" id="importFile" accept="application/json,.json" hidden>
+  <input type="file" id="importFile" accept=".json,.html,.htm,.zip,.svg,.png,.jpg,.jpeg,.gif,.webp,.pdf,application/json,application/zip,application/pdf,image/*" multiple hidden>
   <input type="file" id="imageFile" accept="image/*" hidden>
 </header>
 
@@ -81,9 +82,10 @@
     </div>
 
     <div id="iconPicker" class="ipicker" hidden>
+      <div id="iconSets" class="isets"></div>
       <input id="iconSearch" type="search" placeholder="Search icons…" spellcheck="false" autocomplete="off">
       <div id="iconGrid" class="icongrid"></div>
-      <div class="ihint">Pick an icon, then click or drag on the canvas to place it.</div>
+      <div class="ihint">Pick an icon, then click or drag on the canvas to place it. Includes the full Bootstrap Icons set.</div>
     </div>
 
     <canvas id="minimap" class="minimap" title="Minimap – click to navigate"></canvas>
@@ -124,6 +126,7 @@
   <label class="mrow">Layout
     <select id="expMode"><option value="responsive">Responsive (flows)</option><option value="absolute">Pixel-perfect</option></select></label>
   <label><input type="checkbox" id="expBp"> Treat frames as breakpoints</label>
+  <label title="Adds the editable project to the file so Import can reopen it exactly"><input type="checkbox" id="expEmbed"> Include editable project (for re-import)</label>
   <div class="mhead">Selected frame</div>
   <button data-exp="png1">PNG</button>
   <button data-exp="png2">PNG @2x</button>
@@ -181,9 +184,45 @@
   <div id="presentBox" class="pbox"><div id="presentStage" class="pstage"></div></div>
 </div>
 
+<div id="dvp" class="dvp" hidden role="dialog" aria-modal="true" aria-label="Device preview" tabindex="-1">
+  <div class="dvp-bar">
+    <button id="dvBack" class="tbtn dvp-btn" title="Back (Alt+←)" aria-label="Back" disabled>←</button>
+    <button id="dvFwd" class="tbtn dvp-btn" title="Forward (Alt+→)" aria-label="Forward" disabled>→</button>
+    <button id="dvReload" class="tbtn dvp-btn" title="Reload the preview from the current design" aria-label="Reload">⟳</button>
+    <label class="dvp-addr" title="Type a frame name and press Enter"><span class="dvp-globe" aria-hidden="true">⌘</span><input id="dvAddr" type="text" spellcheck="false" autocomplete="off" aria-label="Address"></label>
+    <button id="dvHot" class="tbtn dvp-btn txt" aria-pressed="false" title="Highlight clickable areas">Clickable areas</button>
+    <button id="dvClose" class="tbtn dvp-btn txt" title="Close (Esc)">✕ Close</button>
+  </div>
+  <div class="dvp-bar dvp-tools">
+    <label class="dvp-field"><span>Frame</span><select id="dvFrame" aria-label="Frame to preview"></select></label>
+    <label class="dvp-field"><span>Device</span><select id="dvDeviceSel" aria-label="Device"></select></label>
+    <span class="dvp-dim"><input id="dvW" type="number" inputmode="numeric" min="120" max="4000" step="1" aria-label="Viewport width"><b>×</b><input id="dvH" type="number" inputmode="numeric" min="120" max="4000" step="1" aria-label="Viewport height"></span>
+    <button id="dvRotate" class="tbtn dvp-btn txt" aria-pressed="false" title="Rotate between portrait and landscape">⟲ Rotate</button>
+    <label class="dvp-field"><span>Content</span><select id="dvContent" aria-label="Content scaling"><option value="fit">Fit width</option><option value="1">Actual size</option></select></label>
+    <span class="dvp-zoom">
+      <button id="dvZoomOut" class="tbtn dvp-btn" title="Zoom out" aria-label="Zoom out">−</button>
+      <select id="dvZoom" aria-label="Zoom"></select>
+      <button id="dvZoomIn" class="tbtn dvp-btn" title="Zoom in" aria-label="Zoom in">+</button>
+      <button id="dvFit" class="tbtn dvp-btn txt" title="Fit the device to the window">Fit to window</button>
+    </span>
+  </div>
+  <div id="dvStage" class="dvp-stage">
+    <div id="dvScaler" class="dvp-scaler">
+      <div id="dvDevice" class="dvp-device">
+        <div id="dvScreen" class="dvp-screen"><div id="dvSizer" class="dvp-sizer"></div></div>
+      </div>
+      <div class="dvp-h r" data-dir="r" title="Drag to resize"></div>
+      <div class="dvp-h b" data-dir="b" title="Drag to resize"></div>
+      <div class="dvp-h rb" data-dir="rb" title="Drag to resize"></div>
+    </div>
+  </div>
+  <div id="dvStatus" class="dvp-status" aria-live="polite"></div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 
 <script>window.ICONS = {{ icons|tojson }};</script>
+<script src="{{ url_for('bootstrap_icons_js') }}"></script>
 <script src="{{ url_for('static', filename='js/model.js') }}"></script>
 <script src="{{ url_for('static', filename='js/render.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ops.js') }}"></script>
@@ -191,5 +230,7 @@
 <script src="{{ url_for('static', filename='js/interact.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib.js') }}"></script>
 <script src="{{ url_for('static', filename='js/io.js') }}"></script>
+<script src="{{ url_for('static', filename='js/import.js') }}"></script>
+<script src="{{ url_for('static', filename='js/device.js') }}"></script>
 </body>
 </html>

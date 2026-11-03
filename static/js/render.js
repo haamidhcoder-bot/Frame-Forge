@@ -27,7 +27,7 @@ function paint(n, e) {
     if (n._sig !== sig) { n._sig = sig; n.innerHTML = '<span class="v"></span><span class="chev">▾</span>'; n.firstChild.textContent = first; }
   } else if (t === 'icon') {
     const sig = 'ic|' + e.icon;
-    if (n._sig !== sig) { n._sig = sig; n.innerHTML = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[e.icon] || ICONS.star}</svg>`; }
+    if (n._sig !== sig) { n._sig = sig; n.innerHTML = iconSvg(e.icon); }
   } else if (t === 'image') {
     const sig = 'img|' + (e.url ? 1 : 0);
     if (n._sig !== sig) {

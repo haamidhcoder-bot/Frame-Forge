@@ -18,22 +18,49 @@ function setTool(t) {
 }));
 
 /* ---- icon picker: choose an icon, then click / drag on the canvas to place it ---- */
-function renderIconGrid() {
-  const q = $('#iconSearch').value.trim().toLowerCase(), grid = $('#iconGrid'); grid.innerHTML = '';
-  const names = Object.keys(ICONS).filter(n => !q || n.includes(q));
-  names.forEach(n => {
-    const b = document.createElement('button'); b.title = n; b.type = 'button';
-    if (n === S.pendingIcon && S.tool === 'icon') b.classList.add('on');
-    b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg><span>${n}</span>`;
-    b.addEventListener('click', () => { S.pendingIcon = n; closeMenus(); setTool('icon'); toast && toast(`Click or drag on the canvas to place “${n}”`); });
-    grid.appendChild(b);
+const ICON_SETS = [['all', 'All'], ['ff', 'FrameForge'], ['bi', 'Bootstrap']];
+let iconSet = 'all';
+try { iconSet = localStorage.getItem('ff:iconSet') || 'all'; } catch (_) {}
+function iconNames(set, q) {
+  const out = [];
+  if (set !== 'bi') for (const n in ICONS) out.push(n);
+  if (set !== 'ff') for (const n in BI) out.push('bi:' + n);
+  q = (q || '').trim().toLowerCase();
+  return q ? out.filter(n => iconLabel(n).includes(q)) : out;
+}
+/* Draw (up to `limit` of) the icons into `grid`; clicks call grid._pick(name). Uses one delegated listener. */
+function fillIconGrid(grid, names, active, size, limit = 240) {
+  grid.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  names.slice(0, limit).forEach(n => {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.name = n; b.title = iconLabel(n) + (isBi(n) ? ' (Bootstrap)' : '');
+    if (n === active) b.classList.add('on');
+    b.innerHTML = iconSvg(n, size, size) + `<span>${esc(iconLabel(n))}</span>`;
+    frag.appendChild(b);
   });
-  if (!names.length) grid.innerHTML = '<p class="libnote">No icons match.</p>';
+  grid.appendChild(frag);
+  if (!names.length) grid.insertAdjacentHTML('beforeend', '<p class="libnote">No icons match.</p>');
+  if (names.length > limit) {
+    const m = document.createElement('button'); m.type = 'button'; m.className = 'iconmore';
+    m.textContent = `Show ${Math.min(300, names.length - limit)} more (${names.length - limit} left)`;
+    m.addEventListener('click', ev => { ev.stopPropagation(); const top = grid.scrollTop; fillIconGrid(grid, names, active, size, limit + 300); grid.scrollTop = top; });
+    grid.appendChild(m);
+  }
+  if (!grid._wired) { grid._wired = true; grid.addEventListener('click', ev => { const b = ev.target.closest('button[data-name]'); if (b && grid._pick) grid._pick(b.dataset.name); }); }
+}
+function renderIconSets(box, onChange) {
+  box.innerHTML = ICON_SETS.map(([k, l]) => `<button type="button" data-set="${k}" class="${k === iconSet ? 'on' : ''}">${l}${k === 'bi' ? ' <small>' + Object.keys(BI).length + '</small>' : ''}</button>`).join('');
+  if (!box._wired) { box._wired = true; box.addEventListener('click', ev => { const b = ev.target.closest('button[data-set]'); if (!b) return; iconSet = b.dataset.set; try { localStorage.setItem('ff:iconSet', iconSet); } catch (_) {} renderIconSets(box, onChange); onChange(); }); }
+}
+function renderIconGrid() {
+  const grid = $('#iconGrid');
+  grid._pick = n => { S.pendingIcon = n; closeMenus(); setTool('icon'); toast && toast(`Click or drag on the canvas to place “${iconLabel(n)}”`); };
+  fillIconGrid(grid, iconNames(iconSet, $('#iconSearch').value), S.tool === 'icon' ? S.pendingIcon : null, 24);
 }
 function toggleIconPicker() {
   const p = $('#iconPicker'), was = !p.hidden; closeMenus();
   if (was) return;
-  p.hidden = false; $('#iconSearch').value = ''; renderIconGrid(); $('#iconSearch').focus();
+  p.hidden = false; $('#iconSearch').value = ''; renderIconSets($('#iconSets'), renderIconGrid); renderIconGrid(); $('#iconSearch').focus();
 }
 $('#iconSearch').addEventListener('input', renderIconGrid);
 $('#iconSearch').addEventListener('keydown', ev => { if (ev.key === 'Escape') closeMenus(); });

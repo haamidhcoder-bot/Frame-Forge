@@ -70,25 +70,18 @@ function newDoc() {
 function download(url, name) { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); }
 const fileBase = () => S.name.replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '') || 'design';
 function exportJSON() { download(URL.createObjectURL(new Blob([JSON.stringify({ name: S.name, data: docData() }, null, 2)], { type: 'application/json' })), fileBase() + '.json'); }
-$('#importFile').addEventListener('change', async ev => {
-  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
-  try {
-    const j = JSON.parse(await f.text()), data = j.data || j;
-    if (!Array.isArray(data.els) || data.els.some(e => !e || !e.id || !e.type)) throw new Error('Not a FrameForge file');
-    loadDoc(j.name || f.name.replace(/\.json$/, ''), data); markDirty(); toast('Imported');
-  } catch (e) { toast('Import failed: ' + e.message, true); }
-});
+/* importing (.json, .html, .zip, .svg, .png, .pdf, images) lives in import.js */
 
 /* ------------------------------------------------------------ export (server) */
 const startFrameId = () => { const e = S.sel.length ? rootOf(get(S.sel[0])) : null; return e && e.type === 'frame' ? e.id : null; };
 async function serverExport(fmt, extra = {}) {
-  const body = JSON.stringify(Object.assign(JSON.parse(payload()), { format: fmt, mode: S.ui.mode, breakpoints: S.ui.breakpoints, page: S.page, start: startFrameId() }, extra));
+  const body = JSON.stringify(Object.assign(JSON.parse(payload()), { format: fmt, mode: S.ui.mode, breakpoints: S.ui.breakpoints, embed: S.ui.embed !== false, page: S.page, start: startFrameId() }, extra));
   const r = await api('/api/export', { method: 'POST', body });
   return { blob: await r.blob(), name: r.headers.get('X-Export-Filename') || fileBase() + '.html', text: () => r.clone().text() };
 }
 async function doExport(fmt) {
   try {
-    if (fmt === 'preview') { const w = window.open('', '_blank'); const r = await serverExport('html'); const t = await r.blob.text(); w.document.open(); w.document.write(t); w.document.close(); return; }
+    if (fmt === 'preview') { const w = window.open('', '_blank'); const r = await serverExport('html', { embed: false }); const t = await r.blob.text(); w.document.open(); w.document.write(t); w.document.close(); return; }
     const r = await serverExport(fmt);
     download(URL.createObjectURL(r.blob), r.name); toast('Exported ' + r.name);
   } catch (e) { toast('Export failed: ' + e.message, true); }
@@ -158,13 +151,13 @@ async function exportImage(kind, scale = 1) {
   const f = targetFrame(); if (!f) return;
   try {
     toast('Rendering…');
-    const { w, h, svg } = await frameSvg(f, scale);
+    const { w, h, svg: plain } = await frameSvg(f, scale), keep = S.ui.embed !== false, svg = keep ? svgWithProject(plain, f) : plain;
     if (kind === 'svg') { download(URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })), `${fileBase()}-${f.name.replace(/[^\w-]+/g, '-')}.svg`); return toast('SVG exported'); }
     const img = new Image();
-    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('Could not render the frame')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('Could not render the frame')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(plain); });
     const cv = document.createElement('canvas'); cv.width = w * scale; cv.height = h * scale;
     cv.getContext('2d').drawImage(img, 0, 0, w * scale, h * scale);
-    cv.toBlob(b => { if (!b) return toast('Could not create PNG', true); download(URL.createObjectURL(b), `${fileBase()}-${f.name.replace(/[^\w-]+/g, '-')}@${scale}x.png`); toast('PNG exported'); }, 'image/png');
+    cv.toBlob(async b => { if (!b) return toast('Could not create PNG', true); if (keep) b = new Blob([pngEmbed(new Uint8Array(await b.arrayBuffer()), 'frameforge', JSON.stringify(frameProject(f)))], { type: 'image/png' }); download(URL.createObjectURL(b), `${fileBase()}-${f.name.replace(/[^\w-]+/g, '-')}@${scale}x.png`); toast('PNG exported'); }, 'image/png');
   } catch (e) { toast('Image export failed: ' + e.message, true); }
 }
 async function exportPdf() {
@@ -191,7 +184,7 @@ function toggleMenu(id, anchor) {
 function persistUi() { try { localStorage.setItem('ff:ui', JSON.stringify(S.ui)); } catch (_) {} }
 function syncMenus() {
   $$('#viewMenu input[data-ui]').forEach(i => { i.checked = !!S.ui[i.dataset.ui]; });
-  $('#expMode').value = S.ui.mode; $('#expBp').checked = !!S.ui.breakpoints;
+  $('#expMode').value = S.ui.mode; $('#expBp').checked = !!S.ui.breakpoints; $('#expEmbed').checked = S.ui.embed !== false;
 }
 function toggleUi(k) {
   S.ui[k] = !S.ui[k]; persistUi(); syncMenus();
@@ -200,6 +193,7 @@ function toggleUi(k) {
 $('#viewMenu').addEventListener('change', ev => { const k = ev.target.dataset.ui; if (k) { S.ui[k] = ev.target.checked; persistUi(); applyView(); } });
 $('#expMode').addEventListener('change', ev => { S.ui.mode = ev.target.value; persistUi(); });
 $('#expBp').addEventListener('change', ev => { S.ui.breakpoints = ev.target.checked; persistUi(); });
+$('#expEmbed').addEventListener('change', ev => { S.ui.embed = ev.target.checked; persistUi(); });
 $('#exportMenu').addEventListener('click', ev => {
   const b = ev.target.closest('[data-exp]'); if (!b) return;
   closeMenus();
@@ -225,7 +219,7 @@ document.querySelector('.topbar').addEventListener('click', ev => {
   if (c === 'exportmenu') return toggleMenu('#exportMenu', el);
   closeMenus();
   ({ undo, redo, new: newDoc, open: showOpen, save: () => save(), import: () => $('#importFile').click(),
-     present: startPresent, publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
+     present: startPresent, devicepreview: () => openDevicePreview(), publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
      theme: () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'),
      left: () => document.body.classList.toggle('show-left'), right: () => document.body.classList.toggle('show-right') })[c]();
 });

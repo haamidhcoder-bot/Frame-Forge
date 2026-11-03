@@ -17,7 +17,7 @@ import re
 import zipfile
 from collections import defaultdict
 
-from icons import ICONS
+from icons import ICONS, icon_inner, icon_svg_attrs, jsx_markup
 
 # --------------------------------------------------------------------------
 # Constants
@@ -699,8 +699,7 @@ def class_attr(n, extra=""):
 
 
 def svg_open(n):
-    return ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"')
+    return "<svg " + icon_svg_attrs(n["e"]["icon"])
 
 
 def inner_of(n):
@@ -713,7 +712,7 @@ def inner_of(n):
         opts = [o.strip() for o in str(e["text"]).splitlines() if o.strip()] or ["Select"]
         return "".join(f"<option>{esc(o)}</option>" for o in opts)
     if t == "icon":
-        return ICONS.get(e["icon"], ICONS["star"])
+        return icon_inner(e["icon"])
     return None
 
 
@@ -950,8 +949,7 @@ def jsx_node(n, ind, proto):
     if n["void"]:
         s = f"{pad}<{tag}{a} />"
     elif e["type"] == "icon":
-        s = (f'{pad}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" '
-             f'strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"{a}>{ICONS.get(e["icon"], ICONS["star"])}</svg>')
+        s = f'{pad}<svg {jsx_markup(icon_svg_attrs(e["icon"]))}{a}>{jsx_markup(icon_inner(e["icon"]))}</svg>'
     elif e["type"] == "checkbox":
         chk = " defaultChecked" if e["checked"] else ""
         s = f'{pad}<label{a}><input type="checkbox"{chk} /><span>{{{json.dumps(e["text"])}}}</span></label>'
@@ -1150,6 +1148,20 @@ def render_flask(name, roots, meta, opts):
     return files
 
 FORMATS = ("html", "html-css", "react", "tailwind", "bootstrap", "flask")
+EMBED_ID = "frameforge-project"
+
+
+def project_json(name, data):
+    """Compact, script-safe JSON of the whole project (what the importer reads back)."""
+    obj = {"format": "frameforge", "version": 2, "name": name, "data": data}
+    return json.dumps(obj, separators=(",", ":")).replace("<", "\\u003c")
+
+
+def with_embedded(page, blob):
+    """Add the editable project data to an HTML page so it can be re-imported losslessly."""
+    tag = f'<script type="application/json" id="{EMBED_ID}">{blob}</script>\n'
+    i = page.rfind("</body>")
+    return page[:i] + tag + page[i:] if i >= 0 else page + tag
 
 
 def export_project(name, data, fmt_name="html", opts=None):
@@ -1158,24 +1170,30 @@ def export_project(name, data, fmt_name="html", opts=None):
     if fmt_name == "flask":
         opts["multipage"] = True
         opts["breakpoints"] = False
+    # editable project data is embedded unless switched off (or this is a single-frame print/PDF export)
+    blob = project_json(name, data) if opts.get("embed", True) and not opts.get("frame") else None
     els, page_id = prepare(data, opts.get("page"), opts.get("frame"))
     roots, meta = build(els, opts)
     base = re.sub(r"[^a-zA-Z0-9_-]+", "-", name).strip("-") or "design"
     if fmt_name == "html":
         page, _ = render_html(name, roots, meta, opts, separate_css=False)
+        if blob:
+            page = with_embedded(page, blob)
         return page.encode("utf-8"), "text/html", base + ".html"
     if fmt_name == "tailwind":
         page = render_tailwind(name, roots, meta, opts)
+        if blob:
+            page = with_embedded(page, blob)
         return page.encode("utf-8"), "text/html", base + "-tailwind.html"
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         if fmt_name == "html-css":
             page, css = render_html(name, roots, meta, opts, separate_css=True)
-            z.writestr("index.html", page)
+            z.writestr("index.html", with_embedded(page, blob) if blob else page)
             z.writestr("style.css", css)
         elif fmt_name == "bootstrap":
             page, css = render_bootstrap(name, roots, meta, opts)
-            z.writestr("index.html", page)
+            z.writestr("index.html", with_embedded(page, blob) if blob else page)
             z.writestr("style.css", css)
         elif fmt_name == "flask":
             for path, text in render_flask(name, roots, meta, opts).items():
@@ -1189,5 +1207,7 @@ def export_project(name, data, fmt_name="html", opts=None):
                                      "add the font <link> from your index.html if you use custom fonts.\n")
         else:
             raise ValueError("Unknown format")
+        if blob:
+            z.writestr("frameforge.json", blob)  # re-import this zip in FrameForge to keep editing
     suffix = {"html-css": "", "bootstrap": "-bootstrap", "react": "-react", "flask": "-flask"}[fmt_name]
     return buf.getvalue(), "application/zip", f"{base}{suffix}.zip"

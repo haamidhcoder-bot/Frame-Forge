@@ -79,3 +79,45 @@ ICONS = {
     "users": '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.9 3-7 7-7s7 3.1 7 7"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 2.4 5 5"/>',
     "book": '<path d="M4 4h7a2 2 0 0 1 1 .3V20a2 2 0 0 0-1-.3H4z"/><path d="M20 4h-7a2 2 0 0 0-1 .3V20a2 2 0 0 1 1-.3h7z"/>',
 }
+
+
+# --------------------------------------------------------------------------
+# Bootstrap Icons (2,050 icons, MIT) - stored as bootstrap_icons.json.
+# Referenced from designs as "bi:<name>" (e.g. "bi:house"); they use a 16x16
+# fill-based viewBox, unlike the 24x24 stroke-based FrameForge set above.
+# --------------------------------------------------------------------------
+import json as _json
+import os as _os
+import re as _re
+
+BI_PREFIX = "bi:"
+try:
+    with open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "bootstrap_icons.json"), encoding="utf-8") as _f:
+        BOOTSTRAP_ICONS = _json.load(_f)
+except (OSError, ValueError):
+    BOOTSTRAP_ICONS = {}
+
+
+def is_bi(name):
+    return isinstance(name, str) and name.startswith(BI_PREFIX) and name[len(BI_PREFIX):] in BOOTSTRAP_ICONS
+
+
+def icon_inner(name):
+    """Inner SVG markup for an icon name (falls back to the star icon)."""
+    if is_bi(name):
+        return BOOTSTRAP_ICONS[name[len(BI_PREFIX):]]
+    return ICONS.get(name, ICONS["star"])
+
+
+def icon_svg_attrs(name):
+    """Attributes for the wrapping <svg> element, matching the icon's set."""
+    if is_bi(name):
+        return 'viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"'
+    return ('viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"')
+
+
+def jsx_markup(markup):
+    """Convert hyphenated SVG attributes to their JSX spelling."""
+    return _re.sub(r"\b(?!aria-|data-)([a-z]+)-([a-z]+)=",
+                   lambda m: m.group(1) + m.group(2).capitalize() + "=", markup)

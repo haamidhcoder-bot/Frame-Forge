@@ -193,7 +193,7 @@ function renderProps() {
     if (t === 'checkbox') h += '<label class="chk"><input type="checkbox" data-k="checked"> Checked</label>';
     h += '</div>';
   }
-  if (t === 'icon') h += `<div class="sec"><h4>Icon</h4>${sel('Icon', 'icon', Object.keys(ICONS).map(n => [n, n]))}<div style="margin-top:8px">${colorRow('Color', 'color')}</div></div>`;
+  if (t === 'icon') h += `<div class="sec"><h4>Icon</h4><div class="iconcur"><span class="icp">${iconSvg(e.icon, 26)}</span><span class="icn">${esc(iconLabel(e.icon))}</span>${btn('changeicon', 'Change…', 'Browse all icons')}</div><div style="margin-top:8px">${colorRow('Color', 'color')}</div></div>`;
   if (t === 'image') h += `<div class="sec"><h4>Image</h4><input class="url" data-k="url" placeholder="https://… or upload" spellcheck="false" ${String(e.url).startsWith('data:') ? 'readonly' : ''}>
     <div class="btnrow" style="margin-top:6px">${btn('upload', '⬆ Upload image', 'Upload an image from your computer')}${e.url ? btn('clearimg', 'Remove', 'Remove image') : ''}</div>
     <div style="margin-top:6px">${sel('Fit', 'fit', [['cover', 'Cover'], ['contain', 'Contain'], ['fill', 'Stretch']])}</div></div>`;
@@ -332,6 +332,7 @@ propsEl.addEventListener('click', ev => {
     case 't-underline': return each(e => { e.underline = !e.underline; });
     case 't-strike': return each(e => { e.strike = !e.strike; });
     case 'upload': { pickImageFile().then(f => f && setImageFor(S.sel[0], f)); return; }
+    case 'changeicon': { iconReplaceId = S.sel[0]; openLibrary('icons'); return; }
     case 'clearimg': return each(e => { e.url = ''; });
     case 'mktstyle': return makeTextStyle();
   }

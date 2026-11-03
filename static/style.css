@@ -245,7 +245,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 
 /* ---------- Modals ---------- */
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 50; }
-.modal[hidden], .toast[hidden], .present[hidden] { display: none; }
+.modal[hidden], .toast[hidden], .present[hidden], .dvp[hidden] { display: none; }
 .modal-box { width: 440px; max-width: 96vw; max-height: 70vh; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
 .modal-box.lib { width: 760px; height: min(580px, 82vh); max-height: 82vh; }
 .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
@@ -311,3 +311,70 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .flowchip.warn { background: #ffd2d2; color: #8a1c1c; cursor: default; }
 .flowpill { position: absolute; border: 1.5px dashed var(--flow); background: var(--panel, #2a2620); color: var(--flow); border-radius: 8px; padding: 7px 11px; font: 12px/1 system-ui, sans-serif; white-space: nowrap; pointer-events: auto; }
 .flowpill[data-flowgo] { cursor: pointer; }
+
+/* icon sets (FrameForge + Bootstrap Icons) */
+.isets { display: flex; gap: 4px; margin-bottom: 8px; }
+.isets button { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+.isets button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.isets small { opacity: .75; font-size: 10px; }
+.iconhead { grid-column: 1 / -1; display: flex; flex-direction: column; }
+.iconhead input { height: 32px; padding: 0 10px; margin-bottom: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: inherit; }
+.icongrid .iconmore { grid-column: 1 / -1; flex-direction: row; justify-content: center; padding: 10px; color: var(--accent); }
+.icongrid button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icongrid button.on { border-color: var(--accent); }
+.iconcur { display: flex; align-items: center; gap: 10px; }
+.iconcur .icp { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; flex: none; }
+.iconcur .icn { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Device preview ---------- */
+.dvicon { vertical-align: -2px; margin-right: 2px; }
+.dvp { position: fixed; inset: 0; z-index: 85; display: flex; flex-direction: column; background: var(--bg); color: var(--text); outline: none; }
+.dvp-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.dvp-tools { gap: 10px 12px; }
+.dvp .tbtn { border-color: var(--border); }
+.dvp .tbtn:hover { border-color: var(--accent); }
+.dvp .tbtn[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dvp select, .dvp input { height: 28px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; color: var(--text); min-width: 0; }
+.dvp input { user-select: text; -webkit-user-select: text; }
+.dvp select:focus, .dvp input:focus, .dvp button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dvp input.bad { border-color: var(--danger); }
+.dvp-addr { flex: 1 1 220px; min-width: 140px; display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; }
+.dvp-addr:focus-within { border-color: var(--accent); }
+.dvp-addr input { flex: 1; height: 26px; border: 0; background: transparent; padding: 0; width: 100%; }
+.dvp-addr input:focus { outline: none; }
+.dvp-globe { color: var(--muted); font-size: 12px; }
+.dvp-field { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.dvp-field select { max-width: 210px; }
+.dvp-dim { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+.dvp-dim input { width: 64px; text-align: center; padding: 0 4px; }
+.dvp-zoom { display: inline-flex; align-items: center; gap: 6px; }
+.dvp-stage { flex: 1; min-height: 0; overflow: auto; display: flex; padding: 24px;
+  background: radial-gradient(var(--dot) 1px, transparent 1px) 0 0 / 20px 20px, var(--canvas); }
+.dvp-scaler { position: relative; margin: auto; flex: none; }
+.dvp-device { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: linear-gradient(145deg, #3a3d44, #0e0f12 65%);
+  box-shadow: inset 0 0 0 2px #656a73, inset 0 0 0 4px #15171a, 0 24px 60px rgba(0,0,0,.5); }
+.dvp-screen { position: absolute; overflow: auto; background: #fff; overscroll-behavior: contain; scrollbar-width: none; touch-action: pan-x pan-y; cursor: grab; }
+.dvp-screen::-webkit-scrollbar { display: none; }
+.dvp-screen.drag { cursor: grabbing; }
+.dvp-sizer { position: relative; margin: 0 auto; }
+.dvp-decor { position: absolute; pointer-events: none; background: #050505; }
+.dvp-decor.grille { background: #24262b; }
+.dvp-decor.ring { background: #0a0a0b; border: 2px solid #3d4047; }
+.dvp-decor.btn { background: #50545c; }
+.dvp .el.has-link { cursor: pointer; }
+.dvp.hot .el.has-link { outline: 2px dashed rgba(13,153,255,.95); outline-offset: -2px; }
+.dvp-h { position: absolute; display: none; touch-action: none; z-index: 2; }
+.dvp.custom .dvp-h { display: block; }
+.dvp-h.r { top: 0; bottom: 0; right: -14px; width: 14px; cursor: ew-resize; }
+.dvp-h.b { left: 0; right: 0; bottom: -14px; height: 14px; cursor: ns-resize; }
+.dvp-h.rb { right: -14px; bottom: -14px; width: 16px; height: 16px; cursor: nwse-resize; }
+.dvp-h::after { content: ""; position: absolute; inset: 4px; border-radius: 4px; background: var(--muted); opacity: .45; }
+.dvp-h:hover::after { background: var(--accent); opacity: 1; }
+.dvp-status { padding: 4px 12px; font-size: 11px; color: var(--muted); background: var(--panel); border-top: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) {
+  .dvp-bar { padding: 6px 8px; gap: 6px; }
+  .dvp-addr { order: 9; flex-basis: 100%; }
+  .dvp-field > span { display: none; }
+  .dvp-field select { max-width: 150px; }
+  .dvp-stage { padding: 12px; }
+}

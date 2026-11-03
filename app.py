@@ -8,11 +8,13 @@ import os
 import re
 import sqlite3
 import time
+from urllib.parse import unquote
 
 from flask import Flask, Response, g, jsonify, render_template, request
 
 from exporter import FORMATS, export_project
-from icons import ICONS
+from icons import BOOTSTRAP_ICONS, ICONS
+from importer import ImportError_, import_file
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "designs.db")
@@ -85,6 +87,7 @@ def export_opts(src):
         "page": src.get("page") or None,
         "start": src.get("start") or None,
         "frame": src.get("frame") or None,
+        "embed": str(src.get("embed", "1")).lower() not in ("0", "false", "no"),
     }
 
 
@@ -96,13 +99,20 @@ def index():
     return render_template("index.html", icons=ICONS)
 
 
+@app.get("/bootstrap-icons.js")
+def bootstrap_icons_js():
+    """The 2,050 Bootstrap Icons as a script (window.BI_ICONS), cached by the browser."""
+    body = "window.BI_ICONS=" + json.dumps(BOOTSTRAP_ICONS, separators=(",", ":")) + ";"
+    return Response(body, mimetype="application/javascript", headers={"Cache-Control": "public, max-age=86400"})
+
+
 @app.get("/p/<int:pid>")
 def published(pid):
     """Public, read-only page for a saved project (the 'Publish' button links here)."""
     row = get_db().execute("SELECT * FROM projects WHERE id = ?", (pid,)).fetchone()
     if row is None:
         return "Project not found", 404
-    opts = export_opts({"mode": "responsive", "breakpoints": "1", "page": request.args.get("page")})
+    opts = export_opts({"mode": "responsive", "breakpoints": "1", "page": request.args.get("page"), "embed": "0"})
     body, mime, _ = export_project(row["name"], json.loads(row["data"]), "html", opts)
     return Response(body, mimetype=mime)
 
@@ -191,6 +201,16 @@ def export_route():
     except ValueError as exc:
         return bad_request(str(exc))
     return send_export(name, data, payload.get("format", "html"), export_opts(payload))
+
+
+@app.post("/api/import")
+def import_route():
+    """Read back a file exported by FrameForge (.json, .html, .zip). Body = raw file bytes."""
+    name = unquote(request.headers.get("X-Filename", ""))
+    try:
+        return jsonify(import_file(name, request.get_data()))
+    except ImportError_ as exc:
+        return bad_request(str(exc))
 
 
 @app.get("/api/projects/<int:pid>/export.html")

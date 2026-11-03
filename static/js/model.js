@@ -62,6 +62,14 @@ const TYPE_DEF = {
   select:   { name: 'Dropdown', w: 200, h: 44, fills: [solid('#ffffff')], strokes: [stroke('#d1d5db')], radius: 8, text: 'Option 1\nOption 2\nOption 3', fontSize: 15 },
   instance: { name: 'Instance' },
 };
+/* Icons: FrameForge's own stroke set (window.ICONS) plus Bootstrap Icons (window.BI_ICONS, referenced as "bi:<name>"). */
+const BI = window.BI_ICONS || {};
+const isBi = n => typeof n === 'string' && n.startsWith('bi:') && Object.prototype.hasOwnProperty.call(BI, n.slice(3));
+const iconLabel = n => String(n).replace(/^bi:/, '');
+function iconSvg(n, w = '100%', h = w) {
+  if (isBi(n)) return `<svg viewBox="0 0 16 16" width="${w}" height="${h}" fill="currentColor" aria-hidden="true">${BI[n.slice(3)]}</svg>`;
+  return `<svg viewBox="0 0 24 24" width="${w}" height="${h}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ICONS.star}</svg>`;
+}
 const ICON = { frame: '#', group: '▢', rect: '▭', ellipse: '◯', line: '╱', polygon: '⬠', text: 'T', button: '▣', image: '▨', icon: '★', input: '⌨', checkbox: '☑', select: '▾', instance: '◇' };
 const CREATE_TOOLS = ['frame', 'rect', 'ellipse', 'line', 'polygon', 'text', 'button', 'image', 'input', 'checkbox', 'select', 'icon'];
 
