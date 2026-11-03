@@ -59,7 +59,6 @@
     <li><a href="#lib">Library: blocks and page templates</a></li>
     <li><a href="#guides">Rulers, guides, grid and minimap</a></li>
     <li><a href="#proto">Prototype and Present mode</a></li>
-    <li><a href="#device">Device Preview</a></li>
     <li><a href="#save">Saving and loading</a></li>
     <li><a href="#export">Exporting</a></li>
     <li><a href="#ui">Theme, context menu and touch</a></li>
@@ -182,30 +181,15 @@
   <li>Turn arrows off or limit them to the selected layers under <strong>View &#9662; &rsaquo; Show flow arrows / Only for selected</strong>. They appear only in the editor, not in exports.</li>
 </ul>
 
-<h2 id="device"><span class="n">14</span>Device Preview</h2>
-<p><strong>Device Preview</strong> (next to Present in the top bar) shows a frame inside a phone, tablet or desktop screen, like the device mode in a browser's developer tools. It opens full screen and does not change your design, your selection, the canvas position or undo history.</p>
-<ul>
-  <li><strong>Which frame:</strong> the frame you have selected. If nothing is selected, the first frame on the current page. Use <strong>Frame</strong> to switch to any frame in the project, including frames on other pages.</li>
-  <li><strong>Browser bar:</strong> Back, Forward and Reload (Reload re-reads the current design), plus an address such as <code>frameforge://preview/my-design/landing-mobile</code>. Type another frame's name in the address and press Enter to jump to it.</li>
-  <li><strong>Devices:</strong> iPhone SE, XR, 12 Pro, 15 Pro and 14 Pro Max; Samsung Galaxy S8+, S20 Ultra, A51/71 and Z Fold 5; Pixel 5 and 7; iPad Mini, Air and Pro 12.9&Prime;; Desktop; and <strong>Custom</strong>. Each has a rounded device frame with its camera cut-out or home button.</li>
-  <li><strong>Size:</strong> the width and height boxes show the screen size. Typing a size on any device switches to Custom (120 to 4000 px). In Custom you can also drag the edges of the device to resize it.</li>
-  <li><strong>Orientation:</strong> <em>Rotate</em> switches between portrait and landscape.</li>
-  <li><strong>Content:</strong> <em>Fit width</em> scales the frame to the screen width (small designs are not enlarged past 125% and are centred). <em>Actual size</em> shows it at 100% and lets you scroll sideways too.</li>
-  <li><strong>Scrolling:</strong> the screen scrolls on its own, with the mouse wheel, by dragging, or by touch, independently of the rest of the window.</li>
-  <li><strong>Zoom:</strong> the &minus; and + buttons, the zoom list, <kbd>Ctrl</kbd>+scroll, or <strong>Fit to window</strong> to fit the whole device.</li>
-  <li><strong>Prototype links:</strong> buttons and layers linked to a frame navigate inside the device (across pages too), and URL links open in a new tab. <em>Clickable areas</em> outlines every layer that has a link.</li>
-  <li><strong>Close</strong> with the button or <kbd>Esc</kbd>. Alt+&larr; and Alt+&rarr; go back and forward. Your device, orientation and zoom choices are remembered.</li>
-</ul>
-<div class="tip">Frames are fixed-size artboards, so a desktop frame on a phone screen is scaled down rather than re-laid out. To check a mobile layout, preview your mobile frame.</div>
-
-<h2 id="save"><span class="n">15</span>Saving and loading</h2>
+<h2 id="save"><span class="n">14</span>Saving and loading</h2>
 <ul>
   <li><strong>Save</strong> stores the design in the server database; <strong>Open</strong> lists saved designs to load or delete. The last design you worked on reopens automatically.</li>
+  <li><strong>HTML | Flet</strong> (top bar) chooses what Export produces: web code, or a Python <a href="https://flet.dev">Flet</a> app (one screen per frame, handlers for your buttons and fields). The choice is saved with the project.</li>
   <li><strong>New</strong> starts a blank document. <strong>Import</strong> reopens anything you can export: <code>.json</code>, <code>.html</code> (single file, Tailwind, Bootstrap), <code>.zip</code> (HTML+CSS, React, Bootstrap, Flask), <code>.svg</code> and <code>.png</code> frames, plus <code>.pdf</code> (pages become images) and plain images. Exports embed the editable project so they come back exactly; untick <em>Include editable project</em> in the Export menu to leave it out. HTML or ZIP files from elsewhere are rebuilt as layers.</li>
   <li>Pages, colour styles, text styles and components are all saved with the design.</li>
 </ul>
 
-<h2 id="export"><span class="n">16</span>Exporting</h2>
+<h2 id="export"><span class="n">15</span>Exporting</h2>
 <p>Use <strong>Export &#9662;</strong>. The Options section of the menu sets the layout:</p>
 <ul>
   <li><strong>Responsive (flows):</strong> auto-layout frames become flex/grid, widths become fluid and the page is centred. With <strong>Treat frames as breakpoints</strong> ticked, frames of different widths act as desktop / tablet / mobile versions of the same page and are switched by media queries (up to 767 px and 1023 px).</li>
@@ -226,14 +210,14 @@
 </table></div>
 <p><strong>Publish</strong> saves the design and opens a public read-only page at <code>/p/&lt;id&gt;</code> on the same server, using responsive mode with breakpoints.</p>
 
-<h2 id="ui"><span class="n">17</span>Theme, context menu and touch</h2>
+<h2 id="ui"><span class="n">16</span>Theme, context menu and touch</h2>
 <ul>
   <li><strong>Theme:</strong> the sun/moon button switches between dark and light editor themes; the choice is remembered.</li>
   <li><strong>Right-click menu:</strong> copy, paste, duplicate, group, auto layout, component actions, order, lock, hide and delete.</li>
   <li><strong>Touch and tablets:</strong> one finger draws or moves, two fingers pan and pinch-zoom. On narrow screens the side panels become drawers opened with the &#9776; button.</li>
 </ul>
 
-<h2 id="keys"><span class="n">18</span>Shortcuts</h2>
+<h2 id="keys"><span class="n">17</span>Shortcuts</h2>
 <div class="tblwrap"><table>
 <tr><th>Area</th><th>Keys</th></tr>
 <tr><td>Tools</td><td><kbd>V</kbd> Move, <kbd>H</kbd> Hand, <kbd>F</kbd> Frame, <kbd>R</kbd> Rectangle, <kbd>O</kbd> Ellipse, <kbd>L</kbd> Line, <kbd>P</kbd> Polygon, <kbd>T</kbd> Text, <kbd>B</kbd> Button, <kbd>I</kbd> Image, <kbd>N</kbd> Input, <kbd>C</kbd> Checkbox, <kbd>D</kbd> Dropdown, <kbd>K</kbd> Icons</td></tr>
@@ -242,7 +226,7 @@
 <tr><td>View</td><td><kbd>Space</kbd>+drag pan, <kbd>Ctrl</kbd>+scroll zoom, <kbd>Shift</kbd>+<kbd>1</kbd> fit all, <kbd>Shift</kbd>+<kbd>2</kbd> fit selection, <kbd>Ctrl</kbd>+<kbd>0</kbd> 100%, <kbd>Shift</kbd>+<kbd>R</kbd> rulers, <kbd>Ctrl</kbd>+<kbd>'</kbd> grid, arrows nudge, <kbd>Esc</kbd> cancel</td></tr>
 </table></div>
 
-<h2 id="trouble"><span class="n">19</span>Troubleshooting</h2>
+<h2 id="trouble"><span class="n">18</span>Troubleshooting</h2>
 <ul>
   <li><strong>Fonts look different in PNG/SVG:</strong> those exports embed Google Fonts, so the browser must be able to reach Google Fonts when you export.</li>
   <li><strong>Remote images missing from PNG/SVG:</strong> images from other websites need to allow cross-origin use; uploaded images always work.</li>

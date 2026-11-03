@@ -356,7 +356,16 @@ $('#dvScreen').addEventListener('click', ev => {
   while (n) {
     const e = DV.ctx && DV.ctx.RMAP.get(n.dataset.id), lk = e && e.link;
     if (lk && lk.kind === 'frame' && lk.value) { if (DV.ctx.frameIds.has(lk.value)) dvGo(lk.value, true); else toast('The linked frame no longer exists', true); return; }
-    if (lk && lk.kind === 'url' && lk.value) { if (/^https?:\/\//i.test(lk.value)) window.open(lk.value, '_blank', 'noopener'); else toast('Link is not a valid http(s) URL', true); return; }
+    if (lk && lk.kind === 'url' && lk.value) {
+      if (/^https?:\/\//i.test(lk.value)) window.open(lk.value, '_blank', 'noopener');
+      else if (/^(#|javascript:)/i.test(lk.value)) { /* in-page anchor: nothing to do */ }
+      else {                                              // "/teachers" or "teachers.html": open the frame with that name, if any
+        const seg = dvSlug(lk.value.replace(/[?#].*$/, '').split('/').filter(Boolean).pop() || '').replace(/-html?$/, '');
+        const hit = DV.ctx.frames.find(f => DV.ctx.slugs.get(f.id) === seg || dvSlug(f.name) === seg);
+        if (hit) dvGo(hit.id, true); else toast(`"${lk.value}" does not match any frame`, true);
+      }
+      return;
+    }
     n = n.parentElement && n.parentElement.closest('.el');
   }
 }, true);

@@ -16,6 +16,7 @@ import zipfile
 from exporter import EMBED_ID
 
 MAX_ZIP_TOTAL = 120 * 1024 * 1024  # uncompressed bytes we are willing to read
+PY_RE = re.compile(r"^# frameforge-project: (\{.*\})\s*$", re.M)
 EMBED_RE = re.compile(r'<script[^>]*\bid=["\']' + EMBED_ID + r'["\'][^>]*>(.*?)</script>', re.S | re.I)
 
 
@@ -128,6 +129,14 @@ def import_file(filename, raw):
         except ValueError as exc:
             raise ImportError_(str(exc) if isinstance(exc, ImportError_) else "Not a FrameForge file")
         return result_project(name, data)
+    if low.endswith(".py"):
+        m = PY_RE.search(text)
+        if not m:
+            raise ImportError_("This .py file was not exported by FrameForge (no project data found)")
+        try:
+            return result_project(*as_project(json.loads(m.group(1)), base))
+        except ValueError as exc:
+            raise ImportError_(str(exc) if isinstance(exc, ImportError_) else "Not a FrameForge file")
     if low.endswith((".html", ".htm")):
         found = project_from_html(text)
         if found:

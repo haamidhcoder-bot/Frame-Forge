@@ -1,13 +1,14 @@
 'use strict';
 /* FrameForge – import. Everything the Export menu produces can be brought back in:
-     .json  .html (also Tailwind / Bootstrap / Flask pages)  .zip (HTML+CSS, React, Bootstrap, Flask)
+     .json  .html (also Tailwind / Bootstrap / Flask pages)  .py (Flet)  .zip (HTML+CSS, React, Bootstrap, Flask, Flet)
      .svg   .png      – exported from a frame; they carry the editable frame inside, so they re-open as a design
      .pdf             – every page becomes an image-backed frame (needs internet for the PDF reader)
    Files that were not made by FrameForge still import: HTML/ZIP are rebuilt from the rendered page, SVG/PNG/JPG/WebP/GIF
    become image layers. */
 
 const EMBED_RE = /<script[^>]*\bid=["']frameforge-project["'][^>]*>([\s\S]*?)<\/script>/i;
-const IMPORT_EXT = /\.(json|html?|zip|svg|png|jpe?g|gif|webp|avif|bmp|pdf)$/i;
+const PY_RE = /^# frameforge-project: (\{.*\})\s*$/m;
+const IMPORT_EXT = /\.(json|html?|py|zip|svg|png|jpe?g|gif|webp|avif|bmp|pdf)$/i;
 
 /* ----------------------------------------------------------------- helpers */
 function asProject(obj, fallbackName) {
@@ -284,6 +285,11 @@ async function importOne(f) {
       const p = asProject(JSON.parse(await f.text()), base); if (!confirmReplace('the imported design')) return; return openImported(p.name, p.data);
     }
     if (/\.html?$/.test(low)) return await importHtmlText(await f.text(), base);
+    if (/\.py$/.test(low)) {
+      const m = PY_RE.exec(await f.text());
+      if (!m) throw new Error('This .py file was not exported by FrameForge (no project data found)');
+      const p = asProject(JSON.parse(m[1]), base); if (!confirmReplace('the imported Flet design')) return; return openImported(p.name, p.data);
+    }
     if (/\.zip$/.test(low)) return await importZip(f);
     if (/\.pdf$/.test(low) || f.type === 'application/pdf') {
       toast('Reading PDF…'); const els = await pdfToElements(f); if (!confirmReplace('the PDF pages')) return;
@@ -299,7 +305,7 @@ async function importOne(f) {
       if (emb) { const p = asProject(JSON.parse(emb), base); if (!confirmReplace('the imported frame')) return; return openImported(p.name, p.data); }
     }
     if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|avif|bmp)$/.test(low)) return await dropImage(f, viewCenterWorld());
-    throw new Error('Unsupported file type. Use .json, .html, .zip, .svg, .png or .pdf');
+    throw new Error('Unsupported file type. Use .json, .html, .py, .zip, .svg, .png or .pdf');
   } catch (e) { toast('Import failed: ' + e.message, true); }
 }
 $('#importFile').addEventListener('change', async ev => {

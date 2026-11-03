@@ -13,7 +13,7 @@ async function api(path, opts = {}) {
   if (!r.ok) { let m = r.statusText; try { m = (await r.json()).error || m; } catch (_) {} throw new Error(m); }
   return r;
 }
-const docData = () => ({ els: S.els, pages: S.pages, tokens: S.tokens, textStyles: S.textStyles, version: 2 });
+const docData = () => ({ els: S.els, pages: S.pages, tokens: S.tokens, textStyles: S.textStyles, version: 2, target: S.ui.target === 'flet' ? 'flet' : 'html' });
 const payload = () => JSON.stringify({ name: S.name, data: docData() });
 
 /* --------------------------------------------------------------- save/load */
@@ -32,6 +32,7 @@ function loadDoc(name, data, id = null) {
   S.els = (data.els || []).map(migrate);
   S.pages = Array.isArray(data.pages) && data.pages.length ? data.pages.map(p => ({ id: p.id, name: p.name, guides: p.guides || [] })) : [{ id: 'p1', name: 'Page 1', guides: [] }];
   S.tokens = data.tokens || {}; S.textStyles = data.textStyles || {};
+  if (data.target === 'flet' || data.target === 'html') setTarget(data.target, true);
   S.page = S.pages[0].id; S.views = {}; S.sel = []; S.hist = []; S.hi = -1; S.dirty = false;
   reindex(); $('#projectName').value = name; commit(); S.dirty = false;
   setStatus(id ? 'Saved' : 'Unsaved', !!id); render(); fit();
@@ -182,6 +183,15 @@ function toggleMenu(id, anchor) {
   m.hidden = false; m.style.top = r.bottom + 4 + 'px'; m.style.left = Math.max(6, Math.min(r.left, window.innerWidth - m.offsetWidth - 6)) + 'px';
 }
 function persistUi() { try { localStorage.setItem('ff:ui', JSON.stringify(S.ui)); } catch (_) {} }
+/* ---- output target: HTML (web code) or Flet (Python app) ---- */
+function setTarget(t, quiet) {
+  t = t === 'flet' ? 'flet' : 'html'; const was = S.ui.target;
+  S.ui.target = t; persistUi();
+  document.body.classList.toggle('target-flet', t === 'flet');
+  $$('#targetSwitch button').forEach(b => b.classList.toggle('on', b.dataset.target === t));
+  if (!quiet && was !== t) { markDirty(); toast(t === 'flet' ? 'Flet mode: Export now creates a Python (Flet) app' : 'HTML mode: Export creates web code'); }
+}
+$('#targetSwitch').addEventListener('click', ev => { const b = ev.target.closest('button[data-target]'); if (b) setTarget(b.dataset.target); });
 function syncMenus() {
   $$('#viewMenu input[data-ui]').forEach(i => { i.checked = !!S.ui[i.dataset.ui]; });
   $('#expMode').value = S.ui.mode; $('#expBp').checked = !!S.ui.breakpoints; $('#expEmbed').checked = S.ui.embed !== false;
@@ -219,7 +229,7 @@ document.querySelector('.topbar').addEventListener('click', ev => {
   if (c === 'exportmenu') return toggleMenu('#exportMenu', el);
   closeMenus();
   ({ undo, redo, new: newDoc, open: showOpen, save: () => save(), import: () => $('#importFile').click(),
-     present: startPresent, devicepreview: () => openDevicePreview(), publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
+     present: startPresent, publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
      theme: () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'),
      left: () => document.body.classList.toggle('show-left'), right: () => document.body.classList.toggle('show-right') })[c]();
 });
@@ -240,7 +250,7 @@ function demo() {
   try { Object.assign(S.ui, JSON.parse(localStorage.getItem('ff:ui') || '{}')); } catch (_) {}
   S.ui.mode = S.ui.mode || 'responsive'; if (S.ui.breakpoints === undefined) S.ui.breakpoints = true;
   let theme = 'dark'; try { theme = localStorage.getItem('ff:theme') || 'dark'; } catch (_) {}
-  setTheme(theme); syncMenus(); setTool('move'); updateUndoButtons();
+  setTheme(theme); setTarget(S.ui.target, true); syncMenus(); setTool('move'); updateUndoButtons();
   let last = null; try { last = localStorage.getItem('ff:last'); } catch (_) {}
   if (last) { try { const p = await (await api(`/api/projects/${last}`)).json(); loadDoc(p.name, p.data, p.id); return; } catch (_) { try { localStorage.removeItem('ff:last'); } catch (__) {} } }
   S.els = []; S.pages = [{ id: 'p1', name: 'Page 1', guides: [] }]; S.page = 'p1'; reindex();
