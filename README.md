@@ -2,7 +2,7 @@
 
 A Figma-style website layout designer. Frontend: HTML, CSS and vanilla JS. Backend: Python (Flask + SQLite).
 
-Features: HTML | Flet output switch (export a Python Flet app), 2,050 Bootstrap Icons + the built-in icon set, import of everything you can export (.json, .html, .zip, .svg, .png, .pdf and images), auto layout (flex/grid), gradients, multiple fills/strokes/effects, image upload, extra shapes and form controls, text styling with Google Fonts, groups, alignment, rulers/guides/grid, components and instances, colour and text styles, block and page-template library, multiple pages, prototype/present mode, export to HTML, HTML+CSS, React, Tailwind, Bootstrap, Flask project, PNG, SVG and PDF, publish link, light/dark theme, context menu, minimap, layer search and touch support.
+Features: HTML | Flet output switch (export a Python Flet app), 2,050 Bootstrap Icons + the built-in icon set, import of everything you can export (.json, .html, .zip, .svg, .png, .pdf and images), auto layout (flex/grid), gradients, multiple fills/strokes/effects, image upload, extra shapes and form controls, text styling with Google Fonts, groups, alignment, rulers/guides/grid, components and instances, colour and text styles, block and page-template library (23 blocks, 12 pages, each in light and dark), multiple pages, prototype links with a DevTools-style device preview (phones, tablets, desktop), export to HTML, HTML+CSS, React, Tailwind, Bootstrap, Flask project, PNG, SVG and PDF, publish link, light/dark theme, context menu, minimap, layer search and touch support.
 
 See `static/user_guide.html` (also linked from the editor as "User Manual") for the full guide.
 

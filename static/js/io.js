@@ -229,7 +229,7 @@ document.querySelector('.topbar').addEventListener('click', ev => {
   if (c === 'exportmenu') return toggleMenu('#exportMenu', el);
   closeMenus();
   ({ undo, redo, new: newDoc, open: showOpen, save: () => save(), import: () => $('#importFile').click(),
-     present: startPresent, publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
+     devices: openDevicePreview, publish, library: () => openLibrary(), styles: openStyles, shortcuts: openShortcuts,
      theme: () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'),
      left: () => document.body.classList.toggle('show-left'), right: () => document.body.classList.toggle('show-right') })[c]();
 });

@@ -29,7 +29,7 @@
   <button class="tbtn txt" data-cmd="styles" title="Colour and text styles">Styles</button>
   <button class="tbtn txt" data-cmd="viewmenu">View ▾</button>
   <span class="sep"></span>
-  <button class="tbtn txt" data-cmd="present" title="Play the clickable prototype">▶ Present</button>
+  <button class="tbtn txt" data-cmd="devices" title="Preview on phones, tablets and desktop – like browser DevTools' device mode">📱 Devices</button>
   <div class="seg" id="targetSwitch" role="group" aria-label="Output target" title="Choose what this design is exported as">
     <button type="button" data-target="html" class="on">HTML</button><button type="button" data-target="flet">Flet</button>
   </div>
@@ -179,15 +179,45 @@
   </div>
 </div>
 
-<div id="present" class="present" hidden>
-  <div class="phead">
-    <button id="presentBack" class="tbtn">← Back</button>
-    <strong id="presentName"></strong>
+<div id="dvp" class="dvp" tabindex="-1" role="dialog" aria-label="Device preview" hidden>
+  <div class="dvp-bar">
+    <button id="dvBack" class="tbtn" title="Back (Alt+←)">←</button>
+    <button id="dvFwd" class="tbtn" title="Forward (Alt+→)">→</button>
+    <button id="dvReload" class="tbtn" title="Reload from the editor">↻</button>
+    <span class="dvp-sep"></span>
+    <span class="dvp-lbl">Frame:</span>
+    <select id="dvFrame" aria-label="Frame"></select>
+    <span class="dvp-lbl">Device:</span>
+    <select id="dvDeviceSel" aria-label="Device"></select>
+    <span class="dvp-size">
+      <input id="dvW" type="number" min="120" max="4000" inputmode="numeric" aria-label="Width">
+      <span class="dvp-x">×</span>
+      <input id="dvH" type="number" min="120" max="4000" inputmode="numeric" aria-label="Height">
+    </span>
+    <select id="dvZoom" aria-label="Zoom"></select>
+    <select id="dvContent" aria-label="Design scaling">
+      <option value="fit">Scale design to width</option><option value="1">Design at 100%</option>
+    </select>
+    <button id="dvRotate" class="tbtn" title="Rotate" aria-pressed="false">⟳</button>
+    <span class="dvp-sep"></span>
+    <button id="dvZoomOut" class="tbtn" title="Zoom out">−</button>
+    <button id="dvFit" class="tbtn" title="Fit to window">Fit</button>
+    <button id="dvZoomIn" class="tbtn" title="Zoom in">+</button>
     <div class="spacer"></div>
-    <button id="presentHot" class="tbtn">Show clickable areas</button>
-    <button id="presentClose" class="tbtn">✕ Close (Esc)</button>
+    <button id="dvHot" class="tbtn" title="Highlight clickable layers" aria-pressed="false">Clickable areas</button>
+    <button id="dvClose" class="tbtn" title="Close (Esc)">✕ Close</button>
   </div>
-  <div id="presentBox" class="pbox"><div id="presentStage" class="pstage"></div></div>
+  <div id="dvStage" class="dvp-stage">
+    <div id="dvScaler" class="dvp-scaler">
+      <div id="dvDevice" class="dvp-device">
+        <div id="dvScreen" class="dvp-screen"><div id="dvSizer" class="dvp-sizer"></div></div>
+        <div class="dvp-h" data-dir="r" title="Drag to resize"></div>
+        <div class="dvp-h" data-dir="b" title="Drag to resize"></div>
+        <div class="dvp-h" data-dir="rb" title="Drag to resize"></div>
+      </div>
+    </div>
+  </div>
+  <div id="dvStatus" class="dvp-status"></div>
 </div>
 
 <div id="toast" class="toast" hidden></div>
@@ -200,6 +230,7 @@
 <script src="{{ url_for('static', filename='js/panels.js') }}"></script>
 <script src="{{ url_for('static', filename='js/interact.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib.js') }}"></script>
+<script src="{{ url_for('static', filename='js/device.js') }}"></script>
 <script src="{{ url_for('static', filename='js/io.js') }}"></script>
 <script src="{{ url_for('static', filename='js/import.js') }}"></script>
 </body>

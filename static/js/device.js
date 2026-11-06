@@ -199,9 +199,7 @@ function dvMount(keepScroll) {
   return true;
 }
 function dvSetAddr() {
-  const c = DV.ctx, f = DV.frame;
-  $('#dvAddr').value = c && f ? `frameforge://preview/${c.project}/${c.slugs.get(f.id) || dvSlug(f.name)}` : 'frameforge://preview/';
-  const sel = $('#dvFrame'); if (f && sel.value !== f.id) sel.value = f.id;
+  const f = DV.frame, sel = $('#dvFrame'); if (f && sel.value !== f.id) sel.value = f.id;
 }
 function dvBuildFrameSelect() {
   const sel = $('#dvFrame'); sel.replaceChildren();
@@ -247,15 +245,6 @@ function dvReload() {
   }
   dvMount(true); toast('Reloaded');
 }
-function dvGoAddress(text) {
-  const c = DV.ctx, raw = String(text || '').trim();
-  const seg = raw.replace(/^[a-z]+:\/\//i, '').replace(/[?#].*$/, '').split('/').filter(Boolean).pop() || '';
-  const want = dvSlug(seg), low = seg.toLowerCase();
-  const f = c.frames.find(x => c.slugs.get(x.id) === want) || c.frames.find(x => x.name.toLowerCase() === low || x.id === seg);
-  if (f) return dvGo(f.id, f.id !== DV.cur);
-  toast(`No frame matches "${seg || raw}"`, true); dvSetAddr();
-}
-
 /* ------------------------------------------------------------ device state */
 function dvSetViewport(vw, vh) {
   vw = Math.round(+vw); vh = Math.round(+vh);
@@ -337,8 +326,6 @@ $('#dvp').addEventListener('change', ev => {
     dvLayout(); dvSavePrefs();
   }
 });
-$('#dvAddr').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); dvGoAddress(ev.target.value); ev.target.blur(); } });
-$('#dvAddr').addEventListener('focus', ev => ev.target.select());
 
 /* Ctrl/⌘ + wheel zooms the device; plain wheel scrolls inside the device viewport only. */
 $('#dvStage').addEventListener('wheel', ev => {
@@ -407,7 +394,7 @@ window.addEventListener('keydown', ev => {
   if (!DV.open) return;
   const t = ev.target, field = t && /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName) && t.closest && t.closest('#dvp');
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); ev.stopPropagation(); return; }
-  if (ev.key === 'Escape') { ev.stopPropagation(); if (field) { if (t.id === 'dvAddr') dvSetAddr(); t.blur(); } else dvClose(); return; }
+  if (ev.key === 'Escape') { ev.stopPropagation(); if (field) { t.blur(); } else dvClose(); return; }
   if (field) return;                                   // typing in a preview field: the editor ignores it
   ev.stopPropagation();
   if ((ev.altKey && ev.key === 'ArrowLeft') || ev.key === 'Backspace') { ev.preventDefault(); dvStep(-1); }
