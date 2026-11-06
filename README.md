@@ -1,15 +1,164 @@
-# FrameForge v2
+# FrameForge
 
-A Figma-style website layout designer. Frontend: HTML, CSS and vanilla JS. Backend: Python (Flask + SQLite).
+**FrameForge** is a browser-based visual website and interface designer inspired by tools such as Figma. Create layouts on a visual canvas, organise elements into pages and components, preview designs across device sizes, and export your work into code or image formats.
 
-Features: HTML | Flet output switch (export a Python Flet app), 2,050 Bootstrap Icons + the built-in icon set, import of everything you can export (.json, .html, .zip, .svg, .png, .pdf and images), auto layout (flex/grid), gradients, multiple fills/strokes/effects, image upload, extra shapes and form controls, text styling with Google Fonts, groups, alignment, rulers/guides/grid, components and instances, colour and text styles, block and page-template library (23 blocks, 12 pages, each in light and dark), multiple pages, prototype links with a DevTools-style device preview (phones, tablets, desktop), export to HTML, HTML+CSS, React, Tailwind, Bootstrap, Flask project, PNG, SVG and PDF, publish link, light/dark theme, context menu, minimap, layer search and touch support.
+<p align="center">
+  <strong>Live Demo</strong><br>
+  <a href="https://frame-forge-blush.vercel.app/">https://frame-forge-blush.vercel.app/</a>
+</p>
 
-See `static/user_guide.html` (also linked from the editor as "User Manual") for the full guide.
+## Features
 
-Layout: `app.py` (routes), `exporter.py` (code generation), `flet_export.py` (Flet/Python generation), `importer.py` (zip/html import), `icons.py` + `bootstrap_icons.json` (icon data), `static/js/import.js` (import UI), `templates/index.html`, `static/style.css`, `static/js/*.js`.
+### Visual design editor
+- Design on a canvas with frames, rectangles, ellipses, lines, polygons, text, buttons, images and form controls.
+- Edit element properties, arrange layers, group and ungroup elements, and align objects.
+- Use rulers, guides, layout grids, snapping, a minimap and zoom controls.
+- Work with multiple pages, reusable components and component instances.
+- Apply fills, gradients, strokes, effects, text styling and Google Fonts.
+- Save colour and text styles for consistent designs.
 
-## Import / export round trip
-Every code export embeds the editable project (`<script id="frameforge-project">` in HTML, `frameforge.json` in zips; SVG/PNG carry the frame inside), so **Import** reopens it exactly. Untick *Include editable project* in the Export menu to leave it out. Files not made by FrameForge are rebuilt from the rendered page (HTML/ZIP), or added as image layers (SVG/PNG/JPG/WebP/GIF). PDF pages become image frames (pdf.js is loaded from a CDN on first use).
+### Layout and responsive preview
+- Create layouts with flexbox-style auto layout and CSS grid.
+- Preview frame designs in phone, tablet and desktop device sizes.
+- Resize the preview, rotate devices, change zoom and inspect clickable areas.
+- Add prototype links between frames to explore a design flow.
 
-## Flet mode
-Use the **HTML | Flet** switch in the top bar. In Flet mode, Export creates a Python app (Flet 1.x): each frame is a screen, auto layout becomes Row/Column, free layout becomes a Stack, links between frames switch screens, and buttons/fields get empty handlers (`on_click_*`, `on_change_*`, `on_select_*`) for your logic. Run it with `pip install flet` and `python main.py`. The mode is saved with the project. Not exported: inner shadows/blur, extra fills/strokes beyond the first, fonts that Flet does not have.
+### Libraries and assets
+- Browse built-in block and page templates, including light and dark variations.
+- Search and insert icons from the built-in icon collection and Bootstrap Icons.
+- Upload images and use them as design elements.
+- Import supported project and design files.
+
+### Import and export
+Export designs in several formats:
+
+| Format | Output |
+|---|---|
+| HTML | Single HTML file |
+| HTML + CSS | ZIP with separate stylesheet |
+| React | React project ZIP |
+| Tailwind | Tailwind-based HTML |
+| Bootstrap | Bootstrap 5 project ZIP |
+| Flask | Flask project ZIP |
+| Flet | Python Flet app or project ZIP |
+| PNG | Image export, including 2× |
+| SVG | Vector export |
+| PDF | Print-ready PDF |
+| JSON | Editable FrameForge project |
+
+FrameForge can also import supported JSON, HTML, ZIP, SVG, PNG and image files. When the editable-project option is included in an export, the design can be imported back into FrameForge for further editing.
+
+## Tech Stack
+
+- **Frontend:** HTML, CSS and vanilla JavaScript
+- **Backend:** Python and Flask
+- **Database:** SQLite
+- **Code generation:** Python export modules
+- **Icons:** Built-in icon set and Bootstrap Icons
+
+## Run Locally
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repository-url>
+cd <repository-folder>
+```
+
+### 2. Create and activate a virtual environment (recommended)
+
+**Windows**
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**macOS / Linux**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Start the application
+
+```bash
+python app.py
+```
+
+Open the local URL printed by Flask in your browser (usually `http://127.0.0.1:5000`).
+
+The SQLite database is created/initialised by the application when it starts.
+
+## Project Structure
+
+```text
+FrameForge/
+├── app.py                  # Flask application and project APIs
+├── exporter.py             # HTML, CSS and framework export generation
+├── flet_export.py          # Python Flet export generation
+├── importer.py             # Import supported project/design files
+├── icons.py                # Built-in icon data
+├── bootstrap_icons.json    # Bootstrap Icons data
+├── designs.db              # SQLite project database
+├── requirements.txt        # Python dependencies
+├── templates/
+│   └── index.html          # Main editor interface
+└── static/
+    ├── style.css           # Editor styling
+    ├── app.js              # Frontend entry script (if used)
+    ├── User_Guide.html     # User manual
+    └── js/                 # Editor modules
+```
+
+## User Guide
+
+The in-app **User Manual** opens `static/User_Guide.html`. Refer to it for detailed instructions on using the editor and its tools.
+
+## Keyboard Shortcuts
+
+A few useful shortcuts available in the editor:
+
+| Shortcut | Action |
+|---|---|
+| `V` | Move tool |
+| `H` | Hand tool |
+| `F` | Frame tool |
+| `R` | Rectangle tool |
+| `O` | Ellipse tool |
+| `L` | Line tool |
+| `P` | Polygon tool |
+| `T` | Text tool |
+| `B` | Button tool |
+| `I` | Image tool |
+| `K` | Icon picker |
+| `Ctrl + Z` | Undo |
+| `Ctrl + Shift + Z` | Redo |
+| `Ctrl + S` | Save |
+| `Ctrl + D` | Duplicate |
+| `Ctrl + G` | Group |
+| `Shift + A` | Add/remove auto layout |
+| `Shift + 1` | Fit canvas to view |
+| `Shift + R` | Toggle rulers and guides |
+
+Open **Keyboard shortcuts** in the editor for the complete list.
+
+## Notes
+
+- The live demo is hosted at [frame-forge-blush.vercel.app](https://frame-forge-blush.vercel.app/).
+- The project requires Python and the dependencies listed in `requirements.txt` when running the Flask application locally.
+- Flet exports require Flet to be installed in the environment where the exported app will run:
+
+```bash
+pip install flet
+python main.py
+```
+
+## License
+
+No license is specified in this project. Add a `LICENSE` file before distributing the project with explicit reuse permissions.
