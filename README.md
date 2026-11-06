@@ -61,8 +61,7 @@ FrameForge can also import supported JSON, HTML, ZIP, SVG, PNG and image files. 
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
-cd <repository-folder>
+git clone https://github.com/haamidhcoder-bot/Frame-Forge.git
 ```
 
 ### 2. Create and activate a virtual environment (recommended)
