@@ -357,15 +357,15 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .iconcur .icp { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; flex: none; }
 .iconcur .icn { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* HTML | Flet target switch */
+/* HTML | Kivy target switch */
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; flex: none; }
 .seg button { background: transparent; border: none; padding: 5px 11px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .seg button.on { background: var(--accent); color: #fff; }
-body.target-flet .only-html { display: none !important; }
-body:not(.target-flet) .only-flet { display: none !important; }
+body.target-kivy .only-html { display: none !important; }
+body:not(.target-kivy) .only-kivy { display: none !important; }
 .mnote { margin: 4px 10px 8px; max-width: 250px; font-size: 11px; line-height: 1.4; color: var(--muted); }
 .mnote code { font-size: 10.5px; }
-body.target-flet .topbar .seg button.on { background: #0ea5e9; }
+body.target-kivy .topbar .seg button.on { background: #0ea5e9; }
 
 .libtheme { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; }
 .libtheme span { color: var(--muted); font-size: 11px; margin-right: 4px; }

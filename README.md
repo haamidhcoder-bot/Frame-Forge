@@ -40,7 +40,7 @@ Export designs in several formats:
 | Tailwind | Tailwind-based HTML |
 | Bootstrap | Bootstrap 5 project ZIP |
 | Flask | Flask project ZIP |
-| Flet | Python Flet app or project ZIP |
+| Kivy | Python Kivy app or project ZIP |
 | PNG | Image export, including 2× |
 | SVG | Vector export |
 | PDF | Print-ready PDF |
@@ -100,7 +100,7 @@ The SQLite database is created/initialised by the application when it starts.
 FrameForge/
 ├── app.py                  # Flask application and project APIs
 ├── exporter.py             # HTML, CSS and framework export generation
-├── flet_export.py          # Python Flet export generation
+├── kivy_export.py          # Python Kivy export generation
 ├── importer.py             # Import supported project/design files
 ├── icons.py                # Built-in icon data
 ├── bootstrap_icons.json    # Bootstrap Icons data
@@ -151,10 +151,10 @@ Open **Keyboard shortcuts** in the editor for the complete list.
 
 - The live demo is hosted at [frame-forge-blush.vercel.app](https://frame-forge-blush.vercel.app/).
 - The project requires Python and the dependencies listed in `requirements.txt` when running the Flask application locally.
-- Flet exports require Flet to be installed in the environment where the exported app will run:
+- Kivy exports require Kivy to be installed in the environment where the exported app will run:
 
 ```bash
-pip install flet
+pip install kivy
 python main.py
 ```
 

@@ -13,7 +13,7 @@ async function api(path, opts = {}) {
   if (!r.ok) { let m = r.statusText; try { m = (await r.json()).error || m; } catch (_) {} throw new Error(m); }
   return r;
 }
-const docData = () => ({ els: S.els, pages: S.pages, tokens: S.tokens, textStyles: S.textStyles, version: 2, target: S.ui.target === 'flet' ? 'flet' : 'html' });
+const docData = () => ({ els: S.els, pages: S.pages, tokens: S.tokens, textStyles: S.textStyles, version: 2, target: S.ui.target === 'kivy' ? 'kivy' : 'html' });
 const payload = () => JSON.stringify({ name: S.name, data: docData() });
 
 /* --------------------------------------------------------------- save/load */
@@ -32,7 +32,8 @@ function loadDoc(name, data, id = null) {
   S.els = (data.els || []).map(migrate);
   S.pages = Array.isArray(data.pages) && data.pages.length ? data.pages.map(p => ({ id: p.id, name: p.name, guides: p.guides || [] })) : [{ id: 'p1', name: 'Page 1', guides: [] }];
   S.tokens = data.tokens || {}; S.textStyles = data.textStyles || {};
-  if (data.target === 'flet' || data.target === 'html') setTarget(data.target, true);
+  if (data.target === 'flet') data.target = 'kivy'; /* older designs */
+  if (data.target === 'kivy' || data.target === 'html') setTarget(data.target, true);
   S.page = S.pages[0].id; S.views = {}; S.sel = []; S.hist = []; S.hi = -1; S.dirty = false;
   reindex(); $('#projectName').value = name; commit(); S.dirty = false;
   setStatus(id ? 'Saved' : 'Unsaved', !!id); render(); fit();
@@ -183,13 +184,13 @@ function toggleMenu(id, anchor) {
   m.hidden = false; m.style.top = r.bottom + 4 + 'px'; m.style.left = Math.max(6, Math.min(r.left, window.innerWidth - m.offsetWidth - 6)) + 'px';
 }
 function persistUi() { try { localStorage.setItem('ff:ui', JSON.stringify(S.ui)); } catch (_) {} }
-/* ---- output target: HTML (web code) or Flet (Python app) ---- */
+/* ---- output target: HTML (web code) or Kivy (Python app) ---- */
 function setTarget(t, quiet) {
-  t = t === 'flet' ? 'flet' : 'html'; const was = S.ui.target;
+  t = t === 'kivy' || t === 'flet' ? 'kivy' : 'html'; const was = S.ui.target;
   S.ui.target = t; persistUi();
-  document.body.classList.toggle('target-flet', t === 'flet');
+  document.body.classList.toggle('target-kivy', t === 'kivy');
   $$('#targetSwitch button').forEach(b => b.classList.toggle('on', b.dataset.target === t));
-  if (!quiet && was !== t) { markDirty(); toast(t === 'flet' ? 'Flet mode: Export now creates a Python (Flet) app' : 'HTML mode: Export creates web code'); }
+  if (!quiet && was !== t) { markDirty(); toast(t === 'kivy' ? 'Kivy mode: Export now creates a Python (Kivy) app' : 'HTML mode: Export creates web code'); }
 }
 $('#targetSwitch').addEventListener('click', ev => { const b = ev.target.closest('button[data-target]'); if (b) setTarget(b.dataset.target); });
 function syncMenus() {

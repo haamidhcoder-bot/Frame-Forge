@@ -1147,7 +1147,7 @@ def render_flask(name, roots, meta, opts):
                           "- Edit the HTML in `templates/` and the styles in `static/style.css`.\n")
     return files
 
-FORMATS = ("html", "html-css", "react", "tailwind", "bootstrap", "flask", "flet", "flet-zip")
+FORMATS = ("html", "html-css", "react", "tailwind", "bootstrap", "flask", "kivy", "kivy-zip")
 EMBED_ID = "frameforge-project"
 
 
@@ -1173,8 +1173,8 @@ def export_project(name, data, fmt_name="html", opts=None):
     # editable project data is embedded unless switched off (or this is a single-frame print/PDF export)
     blob = project_json(name, data) if opts.get("embed", True) and not opts.get("frame") else None
     base = re.sub(r"[^a-zA-Z0-9_-]+", "-", name).strip("-") or "design"
-    if fmt_name in ("flet", "flet-zip"):
-        return export_flet(name, data, fmt_name, opts, blob, base)
+    if fmt_name in ("kivy", "kivy-zip"):
+        return export_kivy(name, data, fmt_name, opts, blob, base)
     els, page_id = prepare(data, opts.get("page"), opts.get("frame"))
     roots, meta = build(els, opts)
     if fmt_name == "html":
@@ -1215,22 +1215,22 @@ def export_project(name, data, fmt_name="html", opts=None):
     return buf.getvalue(), "application/zip", f"{base}{suffix}.zip"
 
 
-def export_flet(name, data, fmt_name, opts, blob, base):
-    """Flet (Python) app: one main.py, or a zip with assets/, requirements and README."""
-    import flet_export as fe
-    single = fmt_name == "flet"
-    code, assets, notes = fe.build_app(name, data, opts, embed_assets=single)
+def export_kivy(name, data, fmt_name, opts, blob, base):
+    """Kivy (Python) app: one main.py, or a zip with assets/, requirements and README."""
+    import kivy_export as ke
+    single = fmt_name == "kivy"
+    code, assets, notes = ke.build_app(name, data, opts, embed_assets=single)
     if single:
         if blob:
             code += "\n# frameforge-project: " + blob + "\n"
-        return code.encode("utf-8"), "text/x-python", base + "-flet.py"
+        return code.encode("utf-8"), "text/x-python", base + "-kivy.py"
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("main.py", code + ("\n# frameforge-project: " + blob + "\n" if blob else ""))
-        z.writestr("requirements.txt", 'flet>=1.0\n')
-        z.writestr("README.md", fe.README.format(name=name, notes=("\nNotes about this export:\n" + "\n".join("- " + n for n in notes) + "\n") if notes else ""))
+        z.writestr("requirements.txt", 'kivy>=2.3\n')
+        z.writestr("README.md", ke.README.format(name=name, notes=("\nNotes about this export:\n" + "\n".join("- " + n for n in notes) + "\n") if notes else ""))
         for fname, raw in assets.items():
             z.writestr("assets/" + fname, raw)
         if blob:
             z.writestr("frameforge.json", blob)
-    return buf.getvalue(), "application/zip", base + "-flet.zip"
+    return buf.getvalue(), "application/zip", base + "-kivy.zip"

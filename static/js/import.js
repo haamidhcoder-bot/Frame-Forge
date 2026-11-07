@@ -1,6 +1,6 @@
 'use strict';
 /* FrameForge – import. Everything the Export menu produces can be brought back in:
-     .json  .html (also Tailwind / Bootstrap / Flask pages)  .py (Flet)  .zip (HTML+CSS, React, Bootstrap, Flask, Flet)
+     .json  .html (also Tailwind / Bootstrap / Flask pages)  .py (Kivy)  .zip (HTML+CSS, React, Bootstrap, Flask, Kivy)
      .svg   .png      – exported from a frame; they carry the editable frame inside, so they re-open as a design
      .pdf             – every page becomes an image-backed frame (needs internet for the PDF reader)
    Files that were not made by FrameForge still import: HTML/ZIP are rebuilt from the rendered page, SVG/PNG/JPG/WebP/GIF
@@ -288,7 +288,7 @@ async function importOne(f) {
     if (/\.py$/.test(low)) {
       const m = PY_RE.exec(await f.text());
       if (!m) throw new Error('This .py file was not exported by FrameForge (no project data found)');
-      const p = asProject(JSON.parse(m[1]), base); if (!confirmReplace('the imported Flet design')) return; return openImported(p.name, p.data);
+      const p = asProject(JSON.parse(m[1]), base); if (!confirmReplace('the imported Kivy design')) return; return openImported(p.name, p.data);
     }
     if (/\.zip$/.test(low)) return await importZip(f);
     if (/\.pdf$/.test(low) || f.type === 'application/pdf') {

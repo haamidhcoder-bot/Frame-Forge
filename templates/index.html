@@ -23,7 +23,7 @@
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="new">New</button>
   <button class="tbtn txt" data-cmd="open">Open</button>
-  <button class="tbtn txt" data-cmd="import" title="Import .json, .html, .py (Flet), .zip, .svg, .png, .pdf or images – anything you can export">Import</button>
+  <button class="tbtn txt" data-cmd="import" title="Import .json, .html, .py (Kivy), .zip, .svg, .png, .pdf or images – anything you can export">Import</button>
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="library" title="Blocks, pages, components, icons">Library</button>
   <button class="tbtn txt" data-cmd="styles" title="Colour and text styles">Styles</button>
@@ -31,7 +31,7 @@
   <span class="sep"></span>
   <button class="tbtn txt" data-cmd="devices" title="Preview on phones, tablets and desktop – like browser DevTools' device mode">Preveiw Devices</button>
   <div class="seg" id="targetSwitch" role="group" aria-label="Output target" title="Choose what this design is exported as">
-    <button type="button" data-target="html" class="on">HTML</button><button type="button" data-target="flet">Flet</button>
+    <button type="button" data-target="html" class="on">HTML</button><button type="button" data-target="kivy">Kivy</button>
   </div>
   <button class="tbtn txt" data-cmd="exportmenu">Export ▾</button>
   <button class="tbtn txt only-html" data-cmd="publish" title="Save and open a public link">Publish</button>
@@ -124,10 +124,10 @@
   <button class="only-html" data-exp="tailwind">Tailwind HTML</button>
   <button class="only-html" data-exp="bootstrap">Bootstrap 5 (.zip)</button>
   <button class="only-html" data-exp="flask">Flask project (.zip, backend + pages)</button>
-  <div class="mhead only-flet">Python · Flet</div>
-  <button class="only-flet" data-exp="flet-zip">Flet project (.zip: main.py + assets)</button>
-  <button class="only-flet" data-exp="flet">Flet app (single main.py)</button>
-  <p class="mnote only-flet">Each frame becomes a screen. Run it with <code>pip install flet</code> then <code>python main.py</code>. Buttons and fields get empty handlers for your logic.</p>
+  <div class="mhead only-kivy">Python · Kivy</div>
+  <button class="only-kivy" data-exp="kivy-zip">Kivy project (.zip: main.py + assets)</button>
+  <button class="only-kivy" data-exp="kivy">Kivy app (single main.py)</button>
+  <p class="mnote only-kivy">Each frame becomes a screen. Run it with <code>pip install kivy</code> then <code>python main.py</code>. Buttons and fields get empty handlers for your logic.</p>
   <div class="mhead only-html">Options</div>
   <label class="mrow only-html">Layout
     <select id="expMode"><option value="responsive">Responsive (flows)</option><option value="absolute">Pixel-perfect</option></select></label>

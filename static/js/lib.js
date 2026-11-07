@@ -96,7 +96,7 @@ const BLOCKS = {
       col('Step ' + n, [T('ellipse', { name: 'Badge', w: 44, h: 44, fills: [solid(p.primary)] }), tx(p, t, { name: 'Title', fontSize: 20, fontWeight: 600, color: p.text }), pa(p, d, { name: 'Text' })], { gap: 10, sizeW: 'fill' })), { gap: 32, sizeW: 'fill', alignItems: 'start' })], { fills: [solid(p.bg2)], gap: 40 }),
   faq: p => sect(p, 'FAQ', [
     hd(p, 'Frequently asked questions', { name: 'Title', fontSize: 32 }),
-    ...[['Is FrameForge free?', 'Yes. Everything runs in your browser and your work stays on your machine.'], ['Can I export code?', 'HTML, CSS, React, Tailwind, Bootstrap, Flask and Flet.'], ['Does it support dark mode?', 'Every library block comes in a light and a dark variant.']].map(([q, a]) =>
+    ...[['Is FrameForge free?', 'Yes. Everything runs in your browser and your work stays on your machine.'], ['Can I export code?', 'HTML, CSS, React, Tailwind, Bootstrap, Flask and Kivy.'], ['Does it support dark mode?', 'Every library block comes in a light and a dark variant.']].map(([q, a]) =>
       fillW(col('Item', [tx(p, q, { name: 'Question', fontSize: 18, fontWeight: 600, color: p.text }), pa(p, a, { name: 'Answer', fontSize: 15 })], { gap: 6, padY: 18, strokes: [stroke(p.line)], fills: [] })))], { padX: 240, gap: 8 }),
   contact: p => T('frame', { name: 'Contact', w: 1440, h: 480, sizeH: 'hug', layout: 'row', gap: 64, padX: 120, padY: 72, fills: [solid(p.bg)], clip: false }, [
     col('Info', [hd(p, 'Get in touch', { name: 'Title', fontSize: 40 }), pa(p, 'Questions, feedback or ideas? We read every message.', { name: 'Text', w: 420, sizeW: 'fixed' }),
